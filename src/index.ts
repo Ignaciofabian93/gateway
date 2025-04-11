@@ -35,19 +35,25 @@ const app = express();
 const PORT = 4000;
 
 app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+app.use(
   `/`,
-  cors({ origin: ["http://localhost:3000"] }),
   express.json(),
   express.urlencoded({ extended: true }),
   expressMiddleware(server, {
-    context: async ({ req }) => {
+    context: async ({ req, res }) => {
       const auth = req.headers.authorization || "";
       const token = auth.split(" ")[1];
-      return { token };
+      return { token, req, res };
     },
   })
 );
 
 http.createServer(app).listen(PORT, () => {
-  console.log(`Server is now running on http://localhost:${PORT}/graphql`);
+  console.log(`Server is now running on http://localhost:${PORT}`);
 });
