@@ -5,6 +5,8 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import fs from "fs";
+import cookieParser from "cookie-parser";
+import Auth from "./auth/route";
 
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
@@ -38,17 +40,22 @@ app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true,
-  })
-);
-
-app.use(
-  `/`,
+  }),
   express.json(),
   express.urlencoded({ extended: true }),
+  cookieParser()
+);
+app.use("/auth", Auth);
+app.use(
+  `/`,
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      const auth = req.headers.authorization || "";
-      const token = auth.split(" ")[1];
+      console.log("REQ:: ", req.body);
+      const cookieToken = req.cookies.token;
+      const headersToken = req.headers.authorization?.split(" ")[1];
+      const token = cookieToken || headersToken || "";
+      console.log("TOKEN:; ", token);
+
       return { token, req, res };
     },
   })

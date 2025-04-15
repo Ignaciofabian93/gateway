@@ -16,12 +16,20 @@
   "dependencies": {
     "@apollo/gateway": "^2.10.0",
     "@apollo/server": "^4.11.3",
+    "@prisma/client": "^6.6.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "graphql": "^16.10.0",
+    "jsonwebtoken": "^9.0.2",
     "tsx": "^4.19.3"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17"
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.9",
+    "prisma": "^6.6.0"
   }
 }
