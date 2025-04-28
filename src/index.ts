@@ -6,7 +6,7 @@ import {
   RemoteGraphQLDataSource,
   GraphQLDataSourceProcessOptions,
 } from "@apollo/gateway";
-import express, { Response, Request, RequestHandler } from "express";
+import express, { Response, Request } from "express";
 import cors from "cors";
 import http from "http";
 import fs from "fs";
@@ -60,16 +60,17 @@ app.use(
 );
 app.use("/auth", auth);
 
-const GraphQLMiddleware = expressMiddleware(server, {
-  context: async ({ req, res }) => {
-    const cookieToken = req.cookies.token;
-    const headersToken = req.headers.authorization?.split(" ")[1];
-    const token = cookieToken || headersToken || "";
-    return { token, req, res };
-  },
-}) as RequestHandler;
-
-app.use(`/`, (req, res, next) => GraphQLMiddleware(req, res, next));
+app.use(
+  `/`,
+  expressMiddleware(server, {
+    context: async ({ req, res }) => {
+      const cookieToken = req.cookies.token;
+      const headersToken = req.headers.authorization?.split(" ")[1];
+      const token = cookieToken || headersToken || "";
+      return { token, req, res };
+    },
+  })
+);
 
 http.createServer(app).listen(PORT, () => {
   console.log(`Server is now running on http://localhost:${PORT}`);
