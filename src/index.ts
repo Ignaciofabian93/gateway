@@ -11,6 +11,7 @@ import cors from "cors";
 import http from "http";
 import cookieParser from "cookie-parser";
 import auth from "./auth/route";
+import { subgraphsURLs } from "./config/config";
 
 type Context = {
   token?: string;
@@ -30,8 +31,8 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
-      { name: "users", url: "http://localhost:4001/graphql" },
-      { name: "products", url: "http://localhost:4002/graphql" },
+      { name: "users", url: subgraphsURLs.users },
+      { name: "products", url: subgraphsURLs.products },
     ],
   }),
   buildService({ url }) {
