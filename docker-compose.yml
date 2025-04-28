@@ -1,0 +1,9 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: gateway
+    ports:
+      - "4000:4000"

@@ -1,30 +1,42 @@
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
-import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from "@apollo/gateway";
-import express from "express";
+import {
+  ApolloGateway,
+  IntrospectAndCompose,
+  RemoteGraphQLDataSource,
+  GraphQLDataSourceProcessOptions,
+} from "@apollo/gateway";
+import express, { Response, Request } from "express";
 import cors from "cors";
 import http from "http";
 import fs from "fs";
 import cookieParser from "cookie-parser";
 import Auth from "./auth/route";
 
+type Context = {
+  token?: string;
+  req?: Request;
+  res?: Response;
+};
+
+class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
+  willSendRequest(options: GraphQLDataSourceProcessOptions) {
+    const { request, context } = options;
+    if (context?.token) {
+      request.http?.headers.set("Authorization", `Bearer ${context.token}`);
+    }
+  }
+}
+
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
       { name: "users", url: "http://localhost:4001/graphql" },
-      // { name: "reviews", url: "http://localhost:4002" },
-      // { name: "items", url: "http://localhost:4003" },
+      { name: "products", url: "http://localhost:4002/graphql" },
     ],
   }),
   buildService({ url }) {
-    return new RemoteGraphQLDataSource({
-      url,
-      willSendRequest({ request, context }) {
-        if (context?.token) {
-          request.http?.headers.set("Authorization", `Bearer ${context.token}`);
-        }
-      },
-    });
+    return new AuthenticatedDataSource({ url });
   },
 });
 
@@ -34,11 +46,12 @@ await server.start();
 
 const app = express();
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    // origin: "http://localhost:3000",
+    origin: "*",
     credentials: true,
   }),
   express.json(),
@@ -50,12 +63,9 @@ app.use(
   `/`,
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      console.log("REQ:: ", req.body);
       const cookieToken = req.cookies.token;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
-      console.log("TOKEN:; ", token);
-
       return { token, req, res };
     },
   })
