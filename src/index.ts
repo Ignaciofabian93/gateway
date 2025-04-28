@@ -9,7 +9,6 @@ import {
 import express, { Response, Request } from "express";
 import cors from "cors";
 import http from "http";
-import fs from "fs";
 import cookieParser from "cookie-parser";
 import auth from "./auth/route";
 
@@ -56,7 +55,7 @@ app.use(
   }),
   express.json(),
   express.urlencoded({ extended: true }),
-  cookieParser()
+  cookieParser(),
 );
 app.use("/auth", auth);
 
@@ -69,7 +68,7 @@ app.use(
       const token = cookieToken || headersToken || "";
       return { token, req, res };
     },
-  })
+  }),
 );
 
 http.createServer(app).listen(PORT, () => {
