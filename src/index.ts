@@ -11,7 +11,7 @@ import cors from "cors";
 import http from "http";
 import fs from "fs";
 import cookieParser from "cookie-parser";
-import Auth from "./auth/route";
+import auth from "./auth/route";
 
 type Context = {
   token?: string;
@@ -58,7 +58,7 @@ app.use(
   express.urlencoded({ extended: true }),
   cookieParser()
 );
-app.use("/auth", Auth);
+app.use("/auth", auth);
 app.use(
   `/`,
   expressMiddleware(server, {
