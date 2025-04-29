@@ -7,9 +7,7 @@ services:
     container_name: gateway
     ports:
       - "4000:4000"
-    networks:
-      - ekoru-network
 
 networks:
   ekoru-network:
-    driver: bridge
+    external: true
