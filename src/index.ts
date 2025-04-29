@@ -23,6 +23,9 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
   willSendRequest(options: GraphQLDataSourceProcessOptions) {
     const { request, context } = options;
     if (context?.token) {
+      console.log("REQ:: ", request);
+      console.log("CTX:: ", context);
+
       request.http?.headers.set("Authorization", `Bearer ${context.token}`);
     }
   }
@@ -66,6 +69,8 @@ app.use(
       const cookieToken = req.cookies.token;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
+      console.log("TOKEN:: ", token);
+
       return { token, req, res };
     },
   }),
