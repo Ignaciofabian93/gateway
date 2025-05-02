@@ -53,7 +53,12 @@ const PORT = process.env.PORT || 4000;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://74.208.96.137:5000"],
+    origin: [
+      "http://localhost:3000",
+      "http://69.48.204.85:4000",
+      "http://localhost:3000/auth",
+      "http://69.48.204.85:4000/auth",
+    ],
     credentials: true,
   }),
   express.json(),
