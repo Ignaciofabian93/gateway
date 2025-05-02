@@ -58,6 +58,7 @@ app.use(
       "http://69.48.204.85:3000",
       "http://localhost:3000/auth",
       "http://69.48.204.85:3000/auth",
+      "http://ekoru-web:3000",
     ],
     credentials: true,
   }),
