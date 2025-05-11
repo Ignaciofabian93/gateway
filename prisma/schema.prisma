@@ -3,6 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,19 +14,120 @@ datasource db {
 }
 
 model Session {
-  id        String  @id
+  id        String  @id @default(uuid())
   name      String
   email     String
   token     String
   isCompany Boolean
 }
 
+model Country {
+  id      Int      @id @default(autoincrement())
+  country String
+  regions Region[]
+  users   User[]
+}
+
+model Region {
+  id        Int     @id @default(autoincrement())
+  region    String
+  countryId Int
+  country   Country @relation(fields: [countryId], references: [id])
+  city      City[]
+  users     User[]
+}
+
+model City {
+  id       Int      @id @default(autoincrement())
+  city     String
+  regionId Int
+  region   Region   @relation(fields: [regionId], references: [id])
+  county   County[]
+  users    User[]
+}
+
+model County {
+  id     Int    @id @default(autoincrement())
+  county String
+  cityId Int
+  city   City   @relation(fields: [cityId], references: [id])
+  users  User[]
+}
+
 model User {
-  id        String   @id
-  name      String
-  email     String   @unique
-  password  String
-  isCompany Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id             String         @id @default(uuid())
+  name           String
+  surnames       String
+  email          String         @unique
+  password       String
+  isCompany      Boolean
+  phone          String         @default("")
+  address        String         @default("")
+  countyId       Int            @default(268)
+  cityId         Int            @default(40)
+  regionId       Int            @default(13)
+  countryId      Int            @default(1)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  county         County         @relation(fields: [countyId], references: [id])
+  city           City           @relation(fields: [cityId], references: [id])
+  region         Region         @relation(fields: [regionId], references: [id])
+  country        Country        @relation(fields: [countryId], references: [id])
+  products       Product[]
+  stories        Story[]
+  userCategoryId Int?
+  userCategory   UserCategory?  @relation(fields: [userCategoryId], references: [id])
+  transactions   Transactions[]
+}
+
+model TransactionType {
+  id           Int            @id @default(autoincrement())
+  type         String
+  Transactions Transactions[]
+}
+
+model Transactions {
+  id                Int             @id @default(autoincrement())
+  transactionTypeId Int
+  type              TransactionType @relation(fields: [transactionTypeId], references: [id])
+  pointsCollected   Int
+  users             User[]
+}
+
+model UserCategory {
+  id                     Int    @id @default(autoincrement())
+  name                   String
+  categoryDiscountAmount Int
+  pointsThreshold        Int
+  users                  User[]
+}
+
+model Story {
+  id          Int      @id @default(autoincrement())
+  images      String[]
+  title       String
+  description String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Int
+  images      String[]
+  hasOffer    Boolean
+  offerPrice  Int
+  stock       Int
+  categoryId  Int
+  userId      String
+  category    Category @relation(fields: [categoryId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }

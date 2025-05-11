@@ -11,11 +11,8 @@ export const Login = async (req: Request, res: Response) => {
     res.status(400).json({ error: "No se encontró al usuario" });
     return;
   }
-  console.log("USER & PASS:: ", user, password);
 
   const valid = await compare(password, user.password);
-  console.log("VALID::", valid);
-
   if (!valid) {
     res.status(400).json({ message: "Credenciales inválidas" });
     return;
