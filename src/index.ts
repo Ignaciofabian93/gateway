@@ -50,7 +50,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000", "https://www.ekoru.cl"],
+    origin: ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000", "https://app.ekoru.cl"],
     credentials: true,
   }),
   express.json(),
