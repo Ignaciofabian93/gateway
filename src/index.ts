@@ -11,7 +11,7 @@ import cors from "cors";
 import http from "http";
 import cookieParser from "cookie-parser";
 import auth from "./auth/route";
-import { subgraphsURLs } from "./config/config";
+import { subgraphsURLs, environment } from "./config/config";
 
 type Context = {
   token?: string;
@@ -48,9 +48,14 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 
+const origin =
+  environment !== "development"
+    ? ["https://app.ekoru.cl"]
+    : ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000"];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000", "https://app.ekoru.cl"],
+    origin,
     credentials: true,
   }),
   express.json(),
