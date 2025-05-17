@@ -23,6 +23,7 @@ export const Login = async (req: Request, res: Response) => {
     secure: process.env.ENVIRONMENT === "production",
     sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
+    domain: ".ekoru.cl",
   });
   res.json({ token, message: "Inicio de sesión exitoso" });
 };
