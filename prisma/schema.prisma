@@ -13,12 +13,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AccountType {
+  FREE
+  PLUS
+  PREMIUM
+}
+
+enum TransactionKind {
+  PURCHASE
+  EXCHANGE
+  GIFT
+  REFERRAL
+  BONUS
+}
+
+enum ShippingStage {
+  PREPARING
+  SHIPPED
+  DELIVERED
+  RETURNED
+  CANCELED
+}
+
 model Session {
-  id        String  @id @default(uuid())
-  name      String
-  email     String
-  token     String
-  isCompany Boolean
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model Country {
@@ -33,7 +56,7 @@ model Region {
   region    String
   countryId Int
   country   Country @relation(fields: [countryId], references: [id])
-  city      City[]
+  cities    City[]
   users     User[]
 }
 
@@ -42,7 +65,7 @@ model City {
   city     String
   regionId Int
   region   Region   @relation(fields: [regionId], references: [id])
-  county   County[]
+  counties County[]
   users    User[]
 }
 
@@ -55,79 +78,188 @@ model County {
 }
 
 model User {
-  id             String         @id @default(uuid())
-  name           String
-  surnames       String
-  email          String         @unique
-  password       String
-  isCompany      Boolean
-  phone          String         @default("")
-  address        String         @default("")
-  countyId       Int            @default(268)
-  cityId         Int            @default(40)
-  regionId       Int            @default(13)
-  countryId      Int            @default(1)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  county         County         @relation(fields: [countyId], references: [id])
-  city           City           @relation(fields: [cityId], references: [id])
-  region         Region         @relation(fields: [regionId], references: [id])
-  country        Country        @relation(fields: [countryId], references: [id])
-  products       Product[]
-  stories        Story[]
-  userCategoryId Int?
-  userCategory   UserCategory?  @relation(fields: [userCategoryId], references: [id])
-  transactions   Transactions[]
+  id              String           @id @default(uuid())
+  name            String?
+  surnames        String?
+  email           String           @unique
+  businessName    String?          @unique
+  password        String
+  profileImage    String?
+  birthday        DateTime         @default(now())
+  phone           String           @default("")
+  address         String           @default("")
+  isCompany       Boolean          @default(false)
+  accountType     AccountType      @default(FREE)
+  points          Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  regionId        Int              @default(13)
+  countyId        Int              @default(268)
+  cityId          Int              @default(40)
+  countryId       Int              @default(1)
+  country         Country          @relation(fields: [countryId], references: [id])
+  region          Region           @relation(fields: [regionId], references: [id])
+  city            City             @relation(fields: [cityId], references: [id])
+  county          County           @relation(fields: [countyId], references: [id])
+  products        Product[]
+  likes           ProductLike[]
+  comments        ProductComment[]
+  stories         Story[]
+  sessions        Session[]
+  transactions    Transaction[]
+  userCategoryId  Int?
+  userCategory    UserCategory?    @relation(fields: [userCategoryId], references: [id])
+  matchesSent     Match[]          @relation("MatchSender")
+  matchesReceived Match[]          @relation("MatchReceiver")
+  sentChats       Chat[]           @relation("ChatSender")
+  receivedChats   Chat[]           @relation("ChatReceiver")
+  orders          Order[]
+  messages        Message[]
 }
 
-model TransactionType {
-  id           Int            @id @default(autoincrement())
-  type         String
-  Transactions Transactions[]
-}
-
-model Transactions {
-  id                Int             @id @default(autoincrement())
-  transactionTypeId Int
-  type              TransactionType @relation(fields: [transactionTypeId], references: [id])
-  pointsCollected   Int
-  users             User[]
+model Match {
+  id         Int      @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  createdAt  DateTime @default(now())
+  sender     User     @relation("MatchSender", fields: [senderId], references: [id])
+  receiver   User     @relation("MatchReceiver", fields: [receiverId], references: [id])
+  isMatched  Boolean  @default(false)
 }
 
 model UserCategory {
   id                     Int    @id @default(autoincrement())
   name                   String
+  level                  Int
   categoryDiscountAmount Int
   pointsThreshold        Int
   users                  User[]
 }
 
+model Product {
+  id                Int              @id @default(autoincrement())
+  name              String
+  description       String
+  price             Int
+  images            String[]
+  hasOffer          Boolean          @default(false)
+  offerPrice        Int              @default(0)
+  stock             Int
+  size              String
+  userId            String
+  user              User             @relation(fields: [userId], references: [id])
+  productCategoryId Int
+  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
+  likes             ProductLike[]
+  comments          ProductComment[]
+  itemsOrdered      OrderItem[]
+  chats             Chat[]
+}
+
+model ProductLike {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  userId    String
+  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model ProductComment {
+  id        Int     @id @default(autoincrement())
+  comment   String
+  productId Int
+  userId    String
+  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model ProductCategory {
+  id                   Int                @id @default(autoincrement())
+  productCategory      String
+  departmentCategoryId Int
+  departmentCategory   DepartmentCategory @relation(fields: [departmentCategoryId], references: [id])
+  products             Product[]
+}
+
+model DepartmentCategory {
+  id                 Int               @id @default(autoincrement())
+  departmentCategory String
+  departmentId       Int
+  department         Department        @relation(fields: [departmentId], references: [id])
+  productCategories  ProductCategory[]
+}
+
+model Department {
+  id                   Int                  @id @default(autoincrement())
+  department           String
+  departmentCategories DepartmentCategory[]
+}
+
+model Transaction {
+  id              Int             @id @default(autoincrement())
+  kind            TransactionKind
+  pointsCollected Int
+  createdAt       DateTime        @default(now())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+}
+
 model Story {
   id          Int      @id @default(autoincrement())
-  images      String[]
   title       String
   description String
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-}
-
-model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
-  products Product[]
-}
-
-model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String
-  price       Int
   images      String[]
-  hasOffer    Boolean
-  offerPrice  Int
-  stock       Int
-  categoryId  Int
   userId      String
-  category    Category @relation(fields: [categoryId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id               Int            @id @default(autoincrement())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id])
+  orderItems       OrderItem[]
+  createdAt        DateTime       @default(now())
+  shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
+  shippingStatusId Int
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ShippingStatus {
+  id     Int           @id @default(autoincrement())
+  status ShippingStage @default(PREPARING)
+  orders Order[]
+}
+
+model Chat {
+  id         Int      @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  productId  Int?
+  isExchange Boolean  @default(false) // true if it's an exchange discussion
+  createdAt  DateTime @default(now())
+
+  sender   User     @relation("ChatSender", fields: [senderId], references: [id])
+  receiver User     @relation("ChatReceiver", fields: [receiverId], references: [id])
+  product  Product? @relation(fields: [productId], references: [id])
+
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  chat   Chat @relation(fields: [chatId], references: [id])
+  sender User @relation(fields: [senderId], references: [id])
 }

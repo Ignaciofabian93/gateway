@@ -19,11 +19,10 @@ export const Login = async (req: Request, res: Response) => {
   }
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string);
   res.cookie("token", token, {
-    httpOnly: true,
+    httpOnly: process.env.ENVIRONMENT === "production" ? true : false,
     secure: process.env.ENVIRONMENT === "production",
     sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
-    domain: ".ekoru.cl",
   });
   res.json({ token, message: "Inicio de sesión exitoso" });
 };
