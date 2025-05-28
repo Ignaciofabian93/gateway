@@ -57,6 +57,8 @@ app.use(
   cors({
     origin,
     credentials: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
@@ -67,7 +69,7 @@ app.use(cookieParser());
 app.use("/auth", auth);
 
 app.use(
-  `/`,
+  `/graphql`,
   expressMiddleware(server, {
     context: async ({ req, res }) => {
       const cookieToken = req.cookies.token;
@@ -79,5 +81,5 @@ app.use(
 );
 
 http.createServer(app).listen(PORT, () => {
-  console.log(`Server is now running on http://localhost:${PORT}`);
+  console.log(`Gateway running on port: ${PORT}`);
 });
