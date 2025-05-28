@@ -85,7 +85,7 @@ model User {
   businessName    String?          @unique
   password        String
   profileImage    String?
-  birthday        DateTime         @default(now())
+  birthday        String           @default("")
   phone           String           @default("")
   address         String           @default("")
   isCompany       Boolean          @default(false)

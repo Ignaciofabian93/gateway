@@ -58,8 +58,8 @@ app.use(
     origin,
     credentials: true,
   }),
-  express.json(),
-  express.urlencoded({ extended: true }),
+  express.json({ limit: "20mb" }),
+  express.urlencoded({ extended: true, limit: "20mb" }),
   cookieParser(),
 );
 app.use("/auth", auth);
