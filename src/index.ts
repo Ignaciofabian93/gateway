@@ -33,6 +33,7 @@ const gateway = new ApolloGateway({
     subgraphs: [
       { name: "users", url: subgraphsURLs.users },
       { name: "products", url: subgraphsURLs.products },
+      { name: "search", url: subgraphsURLs.search },
     ],
   }),
   buildService({ url }) {
