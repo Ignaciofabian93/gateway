@@ -22,6 +22,7 @@ type Context = {
 class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
   willSendRequest(options: GraphQLDataSourceProcessOptions) {
     const { request, context } = options;
+
     if (context?.token) {
       request.http?.headers.set("Authorization", `Bearer ${context.token}`);
     }
@@ -74,6 +75,7 @@ app.use(
       const cookieToken = req.cookies.token;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
+
       return { token, req, res };
     },
   }),

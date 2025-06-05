@@ -35,6 +35,46 @@ enum ShippingStage {
   CANCELED
 }
 
+enum Badge {
+  POPULAR
+  DISCOUNTED
+  WOMAN_OWNED
+  ECO_FRIENDLY
+  BEST_SELLER
+  TOP_RATED
+  COMMUNITY_FAVORITE
+  LIMITED_TIME_OFFER
+  FLASH_SALE
+  BEST_VALUE
+  HANDMADE
+  SUSTAINABLE
+  SUPPORTS_CAUSE
+  FAMILY_BUSINESS
+  CHARITY_SUPPORT
+  LIMITED_STOCK
+  SEASONAL
+  FREE_SHIPPING
+}
+
+enum ContactMethod {
+  EMAIL
+  WHATSAPP
+  ALL
+}
+
+enum WeightUnit {
+  KG
+  LB
+  OZ
+  G
+}
+
+enum ProductSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
 model Session {
   id        String   @id @default(uuid())
   userId    String
@@ -90,6 +130,7 @@ model User {
   address         String           @default("")
   isCompany       Boolean          @default(false)
   accountType     AccountType      @default(FREE)
+  preferredContactMethod ContactMethod @default(WHATSAPP)
   points          Int              @default(0)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -138,15 +179,30 @@ model UserCategory {
 
 model Product {
   id                Int              @id @default(autoincrement())
+  sku               String?          @unique
+  barcode           String?          @unique
+  color             String?
+  brand             String
   name              String
   description       String
   price             Int
   images            String[]
   hasOffer          Boolean          @default(false)
   offerPrice        Int              @default(0)
-  stock             Int
-  size              String
+  stock             Int              @default(0)
+  size              ProductSize?     @default(MEDIUM)
+  weight            Float?           @default(0.0)
+  weightUnit        WeightUnit?      @default(KG)
+  isExchangeable    Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  ratings           Float            @default(0)
+  ratingCount       Int              @default(0)
+  reviewsNumber     Int              @default(0)
   userId            String
+  keywords          String[]         @default([])
+  badges            Badge[]          @default([])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
   user              User             @relation(fields: [userId], references: [id])
   productCategoryId Int
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])

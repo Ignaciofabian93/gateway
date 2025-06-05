@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../client/prisma";
+import { environment } from "../config/config";
 
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -19,11 +20,11 @@ export const Login = async (req: Request, res: Response) => {
   }
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string);
   res.cookie("token", token, {
-    httpOnly: process.env.ENVIRONMENT === "production" ? true : false,
-    secure: process.env.ENVIRONMENT === "production",
+    httpOnly: environment === "production" ? true : false,
+    secure: environment === "production",
     sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
-    domain: process.env.ENVIRONMENT === "production" ? ".ekoru.cl" : undefined,
+    domain: environment === "production" ? ".ekoru.cl" : undefined,
   });
   res.json({ token, message: "Inicio de sesión exitoso" });
 };
