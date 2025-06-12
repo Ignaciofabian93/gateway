@@ -42,7 +42,14 @@ const gateway = new ApolloGateway({
   },
 });
 
-const server = new ApolloServer({ gateway });
+const server = new ApolloServer({
+  gateway,
+  introspection: true,
+  formatError: (error) => {
+    console.error("GraphQL Error:", error);
+    return error;
+  },
+});
 
 await server.start();
 
