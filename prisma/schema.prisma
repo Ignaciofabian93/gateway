@@ -191,6 +191,7 @@ model Product {
   offerPrice        Int              @default(0)
   stock             Int              @default(0)
   isExchangeable    Boolean          @default(false)
+  interests         String[]         @default([])
   isActive          Boolean          @default(true)
   ratings           Float            @default(0)
   ratingCount       Int              @default(0)
