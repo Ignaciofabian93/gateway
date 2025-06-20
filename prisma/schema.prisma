@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +5,264 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Country {
+  id      Int      @id @default(autoincrement())
+  country String
+  regions Region[]
+  users   User[]
+}
+
+model Region {
+  id        Int     @id @default(autoincrement())
+  region    String
+  countryId Int
+  cities    City[]
+  country   Country @relation(fields: [countryId], references: [id])
+  users     User[]
+}
+
+model City {
+  id       Int      @id @default(autoincrement())
+  city     String
+  regionId Int
+  region   Region   @relation(fields: [regionId], references: [id])
+  counties County[]
+  users    User[]
+}
+
+model County {
+  id     Int    @id @default(autoincrement())
+  county String
+  cityId Int
+  city   City   @relation(fields: [cityId], references: [id])
+  users  User[]
+}
+
+model User {
+  id                     String           @id @default(uuid())
+  name                   String?
+  surnames               String?
+  email                  String           @unique
+  businessName           String?          @unique
+  password               String
+  profileImage           String?
+  birthday               String           @default("")
+  phone                  String           @default("")
+  address                String           @default("")
+  isCompany              Boolean          @default(false)
+  accountType            AccountType      @default(FREE)
+  points                 Int              @default(0)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  regionId               Int              @default(13)
+  countyId               Int              @default(268)
+  cityId                 Int              @default(40)
+  countryId              Int              @default(1)
+  userCategoryId         Int?
+  preferredContactMethod ContactMethod    @default(WHATSAPP)
+  receivedChats          Chat[]           @relation("ChatReceiver")
+  sentChats              Chat[]           @relation("ChatSender")
+  matchesReceived        Match[]          @relation("MatchReceiver")
+  matchesSent            Match[]          @relation("MatchSender")
+  messages               Message[]
+  orders                 Order[]
+  products               Product[]
+  comments               ProductComment[]
+  likes                  ProductLike[]
+  sessions               Session[]
+  stories                Story[]
+  transactions           Transaction[]
+  city                   City             @relation(fields: [cityId], references: [id])
+  country                Country          @relation(fields: [countryId], references: [id])
+  county                 County           @relation(fields: [countyId], references: [id])
+  region                 Region           @relation(fields: [regionId], references: [id])
+  userCategory           UserCategory?    @relation(fields: [userCategoryId], references: [id])
+}
+
+model Match {
+  id         Int      @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  createdAt  DateTime @default(now())
+  isMatched  Boolean  @default(false)
+  receiver   User     @relation("MatchReceiver", fields: [receiverId], references: [id])
+  sender     User     @relation("MatchSender", fields: [senderId], references: [id])
+}
+
+model UserCategory {
+  id                     Int    @id @default(autoincrement())
+  name                   String
+  level                  Int
+  categoryDiscountAmount Int
+  pointsThreshold        Int
+  users                  User[]
+}
+
+model Product {
+  id                Int              @id @default(autoincrement())
+  sku               String?          @unique
+  barcode           String?          @unique
+  color             String?
+  brand             String
+  name              String
+  description       String
+  price             Int
+  images            String[]
+  hasOffer          Boolean          @default(false)
+  offerPrice        Int              @default(0)
+  stock             Int              @default(0)
+  isExchangeable    Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  ratings           Float            @default(0)
+  ratingCount       Int              @default(0)
+  reviewsNumber     Int              @default(0)
+  userId            String
+  badges            Badge[]          @default([])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  productCategoryId Int
+  interests         String[]         @default([])
+  chats             Chat[]
+  itemsOrdered      OrderItem[]
+  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
+  comments          ProductComment[]
+  likes             ProductLike[]
+}
+
+model ProductLike {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  userId    String
+  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model ProductComment {
+  id        Int     @id @default(autoincrement())
+  comment   String
+  productId Int
+  userId    String
+  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model MaterialImpactEstimate {
+  id                      Int               @id @default(autoincrement())
+  materialType            String
+  minWeight               Float
+  maxWeight               Float
+  estimatedCo2SavingsKG   Float
+  estimatedWaterSavingsLT Float
+  estimatedWasteSavingsKG Float
+  notes                   String
+  productCategories       ProductCategory[]
+}
+
+model ProductCategory {
+  id                       Int                    @id @default(autoincrement())
+  productCategoryName      String
+  departmentCategoryId     Int
+  materialImpactEstimateId Int
+  keywords                 String[]               @default([])
+  maxWeight                Float?                 @default(0.0)
+  minWeight                Float?                 @default(0.0)
+  size                     ProductSize?           @default(MEDIUM)
+  weightUnit               WeightUnit?            @default(KG)
+  products                 Product[]
+  departmentCategory       DepartmentCategory     @relation(fields: [departmentCategoryId], references: [id])
+  materialImpactEstimate   MaterialImpactEstimate @relation(fields: [materialImpactEstimateId], references: [id])
+}
+
+model DepartmentCategory {
+  id                     Int               @id @default(autoincrement())
+  departmentCategoryName String
+  departmentId           Int
+  department             Department        @relation(fields: [departmentId], references: [id])
+  productCategories      ProductCategory[]
+}
+
+model Department {
+  id                   Int                  @id @default(autoincrement())
+  departmentName       String
+  departmentCategories DepartmentCategory[]
+}
+
+model Transaction {
+  id              Int             @id @default(autoincrement())
+  kind            TransactionKind
+  pointsCollected Int
+  createdAt       DateTime        @default(now())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+}
+
+model Story {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  images      String[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id               Int            @id @default(autoincrement())
+  userId           String
+  createdAt        DateTime       @default(now())
+  shippingStatusId Int
+  shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
+  user             User           @relation(fields: [userId], references: [id])
+  orderItems       OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ShippingStatus {
+  id     Int           @id @default(autoincrement())
+  status ShippingStage @default(PREPARING)
+  orders Order[]
+}
+
+model Chat {
+  id         Int       @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  productId  Int?
+  isExchange Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  product    Product?  @relation(fields: [productId], references: [id])
+  receiver   User      @relation("ChatReceiver", fields: [receiverId], references: [id])
+  sender     User      @relation("ChatSender", fields: [senderId], references: [id])
+  messages   Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
 }
 
 enum AccountType {
@@ -88,265 +340,4 @@ enum ProductSize {
   SMALL
   MEDIUM
   LARGE
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  token     String   @unique
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-}
-
-model Country {
-  id      Int      @id @default(autoincrement())
-  country String
-  regions Region[]
-  users   User[]
-}
-
-model Region {
-  id        Int     @id @default(autoincrement())
-  region    String
-  countryId Int
-  country   Country @relation(fields: [countryId], references: [id])
-  cities    City[]
-  users     User[]
-}
-
-model City {
-  id       Int      @id @default(autoincrement())
-  city     String
-  regionId Int
-  region   Region   @relation(fields: [regionId], references: [id])
-  counties County[]
-  users    User[]
-}
-
-model County {
-  id     Int    @id @default(autoincrement())
-  county String
-  cityId Int
-  city   City   @relation(fields: [cityId], references: [id])
-  users  User[]
-}
-
-model User {
-  id                     String           @id @default(uuid())
-  name                   String?
-  surnames               String?
-  email                  String           @unique
-  businessName           String?          @unique
-  password               String
-  profileImage           String?
-  birthday               String           @default("")
-  phone                  String           @default("")
-  address                String           @default("")
-  isCompany              Boolean          @default(false)
-  accountType            AccountType      @default(FREE)
-  preferredContactMethod ContactMethod    @default(WHATSAPP)
-  points                 Int              @default(0)
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  regionId               Int              @default(13)
-  countyId               Int              @default(268)
-  cityId                 Int              @default(40)
-  countryId              Int              @default(1)
-  country                Country          @relation(fields: [countryId], references: [id])
-  region                 Region           @relation(fields: [regionId], references: [id])
-  city                   City             @relation(fields: [cityId], references: [id])
-  county                 County           @relation(fields: [countyId], references: [id])
-  products               Product[]
-  likes                  ProductLike[]
-  comments               ProductComment[]
-  stories                Story[]
-  sessions               Session[]
-  transactions           Transaction[]
-  userCategoryId         Int?
-  userCategory           UserCategory?    @relation(fields: [userCategoryId], references: [id])
-  matchesSent            Match[]          @relation("MatchSender")
-  matchesReceived        Match[]          @relation("MatchReceiver")
-  sentChats              Chat[]           @relation("ChatSender")
-  receivedChats          Chat[]           @relation("ChatReceiver")
-  orders                 Order[]
-  messages               Message[]
-}
-
-model Match {
-  id         Int      @id @default(autoincrement())
-  senderId   String
-  receiverId String
-  createdAt  DateTime @default(now())
-  sender     User     @relation("MatchSender", fields: [senderId], references: [id])
-  receiver   User     @relation("MatchReceiver", fields: [receiverId], references: [id])
-  isMatched  Boolean  @default(false)
-}
-
-model UserCategory {
-  id                     Int    @id @default(autoincrement())
-  name                   String
-  level                  Int
-  categoryDiscountAmount Int
-  pointsThreshold        Int
-  users                  User[]
-}
-
-model Product {
-  id                Int              @id @default(autoincrement())
-  sku               String?          @unique
-  barcode           String?          @unique
-  color             String?
-  brand             String
-  name              String
-  description       String
-  price             Int
-  images            String[]
-  hasOffer          Boolean          @default(false)
-  offerPrice        Int              @default(0)
-  stock             Int              @default(0)
-  isExchangeable    Boolean          @default(false)
-  interests         String[]         @default([])
-  isActive          Boolean          @default(true)
-  ratings           Float            @default(0)
-  ratingCount       Int              @default(0)
-  reviewsNumber     Int              @default(0)
-  userId            String
-  badges            Badge[]          @default([])
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  user              User             @relation(fields: [userId], references: [id])
-  productCategoryId Int
-  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
-  likes             ProductLike[]
-  comments          ProductComment[]
-  itemsOrdered      OrderItem[]
-  chats             Chat[]
-}
-
-model ProductLike {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  userId    String
-  product   Product @relation(fields: [productId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-}
-
-model ProductComment {
-  id        Int     @id @default(autoincrement())
-  comment   String
-  productId Int
-  userId    String
-  product   Product @relation(fields: [productId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-}
-
-model MaterialImpactEstimate {
-  id                      Int               @id @default(autoincrement())
-  materialType            String
-  minWeight               Float
-  maxWeight               Float
-  estimatedCo2SavingsKG   Float
-  estimatedWaterSavingsLT Float
-  estimatedWasteSavingsKG Float
-  notes                   String
-  productCategories       ProductCategory[]
-}
-
-model ProductCategory {
-  id                       Int                    @id @default(autoincrement())
-  productCategory          String
-  departmentCategoryId     Int
-  keywords                 String[]               @default([])
-  materialImpactEstimateId Int
-  size                     ProductSize?           @default(MEDIUM)
-  minWeight                Float?                 @default(0.0)
-  maxWeight                Float?                 @default(0.0)
-  weightUnit               WeightUnit?            @default(KG)
-  materialImpactEstimate   MaterialImpactEstimate @relation(fields: [materialImpactEstimateId], references: [id])
-  departmentCategory       DepartmentCategory     @relation(fields: [departmentCategoryId], references: [id])
-  products                 Product[]
-}
-
-model DepartmentCategory {
-  id                 Int               @id @default(autoincrement())
-  departmentCategory String
-  departmentId       Int
-  department         Department        @relation(fields: [departmentId], references: [id])
-  productCategories  ProductCategory[]
-}
-
-model Department {
-  id                   Int                  @id @default(autoincrement())
-  department           String
-  departmentCategories DepartmentCategory[]
-}
-
-model Transaction {
-  id              Int             @id @default(autoincrement())
-  kind            TransactionKind
-  pointsCollected Int
-  createdAt       DateTime        @default(now())
-  userId          String
-  user            User            @relation(fields: [userId], references: [id])
-}
-
-model Story {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  images      String[]
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-}
-
-model Order {
-  id               Int            @id @default(autoincrement())
-  userId           String
-  user             User           @relation(fields: [userId], references: [id])
-  orderItems       OrderItem[]
-  createdAt        DateTime       @default(now())
-  shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
-  shippingStatusId Int
-}
-
-model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
-  quantity  Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-model ShippingStatus {
-  id     Int           @id @default(autoincrement())
-  status ShippingStage @default(PREPARING)
-  orders Order[]
-}
-
-model Chat {
-  id         Int      @id @default(autoincrement())
-  senderId   String
-  receiverId String
-  productId  Int?
-  isExchange Boolean  @default(false) // true if it's an exchange discussion
-  createdAt  DateTime @default(now())
-
-  sender   User     @relation("ChatSender", fields: [senderId], references: [id])
-  receiver User     @relation("ChatReceiver", fields: [receiverId], references: [id])
-  product  Product? @relation(fields: [productId], references: [id])
-
-  messages Message[]
-}
-
-model Message {
-  id        Int      @id @default(autoincrement())
-  chatId    Int
-  senderId  String
-  content   String
-  createdAt DateTime @default(now())
-
-  chat   Chat @relation(fields: [chatId], references: [id])
-  sender User @relation(fields: [senderId], references: [id])
 }

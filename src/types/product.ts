@@ -28,7 +28,7 @@ export type Product = {
 
 export type ProductCategory = {
   id: number;
-  productCategory: string;
+  productCategoryName: string;
   departmentCategoryId: number;
   keywords: string[];
   materialImpactEstimateId: number;
@@ -51,11 +51,11 @@ export type MaterialImpactEstimate = {
 
 export type DepartmentCategory = {
   id: number;
-  departmentCategory: string;
+  departmentCategoryName: string;
   departmentId: number;
 };
 
 export type Department = {
   id: number;
-  department: string;
+  departmentName: string;
 };
