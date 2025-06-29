@@ -73,13 +73,13 @@ app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
 
-app.use("/auth", auth);
+app.use("/session", auth);
 
 app.use(
   `/graphql`,
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      const cookieToken = req.cookies.token;
+      const cookieToken = req.cookies.token || req.cookies.refreshToken;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
 

@@ -161,28 +161,40 @@ model ProductComment {
 model MaterialImpactEstimate {
   id                      Int               @id @default(autoincrement())
   materialType            String
-  minWeight               Float
-  maxWeight               Float
   estimatedCo2SavingsKG   Float
   estimatedWaterSavingsLT Float
-  estimatedWasteSavingsKG Float
-  notes                   String
-  productCategories       ProductCategory[]
+  fifthMaterialTypeFor    ProductCategory[] @relation("FifthMaterialType")
+  firstMaterialTypeFor    ProductCategory[] @relation("FirstMaterialType")
+  fourthMaterialTypeFor   ProductCategory[] @relation("FourthMaterialType")
+  secondMaterialTypeFor   ProductCategory[] @relation("SecondMaterialType")
+  thirdMaterialTypeFor    ProductCategory[] @relation("ThirdMaterialType")
 }
 
 model ProductCategory {
-  id                       Int                    @id @default(autoincrement())
-  productCategoryName      String
-  departmentCategoryId     Int
-  materialImpactEstimateId Int
-  keywords                 String[]               @default([])
-  maxWeight                Float?                 @default(0.0)
-  minWeight                Float?                 @default(0.0)
-  size                     ProductSize?           @default(MEDIUM)
-  weightUnit               WeightUnit?            @default(KG)
-  products                 Product[]
-  departmentCategory       DepartmentCategory     @relation(fields: [departmentCategoryId], references: [id])
-  materialImpactEstimate   MaterialImpactEstimate @relation(fields: [materialImpactEstimateId], references: [id])
+  id                         Int                     @id @default(autoincrement())
+  productCategoryName        String
+  departmentCategoryId       Int
+  keywords                   String[]                @default([])
+  size                       ProductSize?            @default(M)
+  weightUnit                 WeightUnit?             @default(KG)
+  averageWeight              Float?                  @default(0.0)
+  fifthMaterialTypeId        Int?
+  fifthMaterialTypeQuantity  Float?                  @default(0.0)
+  firstMaterialTypeId        Int?
+  firstMaterialTypeQuantity  Float?                  @default(0.0)
+  fourthMaterialTypeId       Int?
+  fourthMaterialTypeQuantity Float?                  @default(0.0)
+  secondMaterialTypeId       Int?
+  secondMaterialTypeQuantity Float?                  @default(0.0)
+  thirdMaterialTypeId        Int?
+  thirdMaterialTypeQuantity  Float?                  @default(0.0)
+  products                   Product[]
+  departmentCategory         DepartmentCategory      @relation(fields: [departmentCategoryId], references: [id])
+  fifthMaterialType          MaterialImpactEstimate? @relation("FifthMaterialType", fields: [fifthMaterialTypeId], references: [id])
+  firstMaterialType          MaterialImpactEstimate? @relation("FirstMaterialType", fields: [firstMaterialTypeId], references: [id])
+  fourthMaterialType         MaterialImpactEstimate? @relation("FourthMaterialType", fields: [fourthMaterialTypeId], references: [id])
+  secondMaterialType         MaterialImpactEstimate? @relation("SecondMaterialType", fields: [secondMaterialTypeId], references: [id])
+  thirdMaterialType          MaterialImpactEstimate? @relation("ThirdMaterialType", fields: [thirdMaterialTypeId], references: [id])
 }
 
 model DepartmentCategory {
@@ -337,7 +349,9 @@ enum WeightUnit {
 }
 
 enum ProductSize {
-  SMALL
-  MEDIUM
-  LARGE
+  XS
+  S
+  M
+  L
+  XL
 }
