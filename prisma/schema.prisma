@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Session {
   id        String   @id @default(uuid())
   userId    String
@@ -54,7 +63,7 @@ model User {
   name                   String?
   surnames               String?
   email                  String           @unique
-  businessName           String?          
+  businessName           String?
   password               String
   profileImage           String?
   birthday               String           @default("")
@@ -128,11 +137,11 @@ model Product {
   ratingCount       Int              @default(0)
   reviewsNumber     Int              @default(0)
   userId            String
-  badges            Badge[]          @default([])
+  badges            Badge[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   productCategoryId Int
-  interests         String[]         @default([])
+  interests         String[]
   chats             Chat[]
   itemsOrdered      OrderItem[]
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
@@ -174,7 +183,7 @@ model ProductCategory {
   id                         Int                     @id @default(autoincrement())
   productCategoryName        String
   departmentCategoryId       Int
-  keywords                   String[]                @default([])
+  keywords                   String[]
   averageWeight              Float?                  @default(0.0)
   firstMaterialTypeId        Int?
   firstMaterialTypeQuantity  Float?                  @default(0.0)
@@ -275,6 +284,24 @@ model Message {
   createdAt DateTime @default(now())
   chat      Chat     @relation(fields: [chatId], references: [id])
   sender    User     @relation(fields: [senderId], references: [id])
+}
+
+model Co2ImpactMessage {
+  id       Int    @id @default(autoincrement())
+  min      Float  @default(0.0)
+  max      Float  @default(0.0)
+  message1 String
+  message2 String
+  message3 String
+}
+
+model WaterImpactMessage {
+  id       Int    @id @default(autoincrement())
+  min      Float  @default(0.0)
+  max      Float  @default(0.0)
+  message1 String
+  message2 String
+  message3 String
 }
 
 enum AccountType {
