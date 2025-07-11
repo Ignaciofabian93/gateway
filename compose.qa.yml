@@ -1,0 +1,19 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: gateway_qa
+    ports:
+      - "4100:4000"
+    env_file:
+      - .env.qa
+    environment:
+      - NODE_ENV=qa
+    networks:
+      - ekoru-network
+
+networks:
+  ekoru-network:
+    external: true

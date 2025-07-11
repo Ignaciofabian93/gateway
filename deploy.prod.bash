@@ -1,0 +1,1 @@
+git pull && docker -f compose.prod.yml up -d --build
