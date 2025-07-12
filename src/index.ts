@@ -59,7 +59,7 @@ const PORT = process.env.PORT || 4000;
 
 const origin =
   environment !== "development"
-    ? ["https://app.ekoru.cl"]
+    ? ["https://app.ekoru.cl", "https://qa.app.ekoru.cl"]
     : ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000"];
 
 app.use(
@@ -90,4 +90,6 @@ app.use(
 
 http.createServer(app).listen(PORT, () => {
   console.log(`Gateway running on port: ${PORT}`);
+  console.log(`Environment: ${environment}`);
+  console.log(`Subgraphs URLs: ${JSON.stringify(subgraphsURLs, null, 2)}`);
 });
