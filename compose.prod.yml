@@ -1,8 +1,8 @@
 services:
-  gateway:
+  gateway_prod:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     restart: always
     container_name: gateway_prod
     ports:

@@ -1,8 +1,8 @@
 services:
-  gateway:
+  gateway_qa:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.qa
     restart: always
     container_name: gateway_qa
     ports:
