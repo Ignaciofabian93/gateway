@@ -35,6 +35,7 @@ const gateway = new ApolloGateway({
       { name: "users", url: subgraphsURLs.users },
       { name: "products", url: subgraphsURLs.products },
       { name: "search", url: subgraphsURLs.search },
+      { name: "transaction", url: subgraphsURLs.transaction },
     ],
   }),
   buildService({ url }) {
@@ -58,9 +59,11 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 const origin =
-  environment !== "development"
-    ? ["https://app.ekoru.cl", "https://qa.app.ekoru.cl"]
-    : ["http://localhost:3000", "http://69.48.204.85:3000", "http://ekoru-web:3000"];
+  environment === "development"
+    ? ["http://localhost:3000"]
+    : environment === "qa"
+      ? ["https://qa.app.ekoru.cl"]
+      : ["https://app.ekoru.cl"];
 
 app.use(
   cors({

@@ -12,16 +12,19 @@ const urlsByEnv = {
     users: "http://localhost:4001/graphql",
     products: "http://localhost:4002/graphql",
     search: "http://localhost:4003/graphql",
+    transaction: "http://localhost:4004/graphql",
   },
   qa: {
-    users: "http://users_subgraph_prod:4001/graphql",
-    products: "http://products_subgraph_prod:4002/graphql",
-    search: "http://search_subgraph_prod:4003/graphql",
+    users: "http://users_subgraph_qa:4001/graphql",
+    products: "http://products_subgraph_qa:4002/graphql",
+    search: "http://search_subgraph_qa:4003/graphql",
+    transaction: "http://transaction_subgraph_qa:4004/graphql",
   },
   production: {
     users: "http://users_subgraph_prod:4001/graphql",
     products: "http://products_subgraph_prod:4002/graphql",
     search: "http://search_subgraph_prod:4003/graphql",
+    transaction: "http://transaction_subgraph_prod:4004/graphql",
   },
 };
 

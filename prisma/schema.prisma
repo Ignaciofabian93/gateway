@@ -18,10 +18,10 @@ model Admin {
 
 model Session {
   id        String   @id @default(uuid())
-  userId    String
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
 }
 
@@ -61,25 +61,26 @@ model County {
 model User {
   id                     String           @id @default(uuid())
   name                   String?
-  surnames               String?
   email                  String           @unique
-  businessName           String?
   password               String
-  profileImage           String?
-  birthday               String           @default("")
-  phone                  String           @default("")
-  address                String           @default("")
   isCompany              Boolean          @default(false)
-  accountType            AccountType      @default(FREE)
-  points                 Int              @default(0)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
-  regionId               Int              @default(13)
-  countyId               Int              @default(268)
+  userCategoryId         Int?
+  accountType            AccountType      @default(FREE)
+  address                String           @default("")
+  birthday               String           @default("")
+  businessName           String?
   cityId                 Int              @default(40)
   countryId              Int              @default(1)
-  userCategoryId         Int?
+  countyId               Int              @default(268)
+  coverImage             String?
+  phone                  String           @default("")
+  points                 Int              @default(0)
   preferredContactMethod ContactMethod    @default(WHATSAPP)
+  profileImage           String?
+  regionId               Int              @default(13)
+  surnames               String?
   receivedChats          Chat[]           @relation("ChatReceiver")
   sentChats              Chat[]           @relation("ChatSender")
   matchesReceived        Match[]          @relation("MatchReceiver")
@@ -112,42 +113,44 @@ model Match {
 model UserCategory {
   id                     Int    @id @default(autoincrement())
   name                   String
-  level                  Int
   categoryDiscountAmount Int
   pointsThreshold        Int
+  level                  Int
   users                  User[]
 }
 
 model Product {
-  id                Int              @id @default(autoincrement())
-  sku               String?          @unique
-  barcode           String?          @unique
-  color             String?
-  brand             String
-  name              String
-  description       String
-  price             Int
-  images            String[]
-  hasOffer          Boolean          @default(false)
-  offerPrice        Int              @default(0)
-  stock             Int              @default(0)
-  isExchangeable    Boolean          @default(false)
-  isActive          Boolean          @default(true)
-  ratings           Float            @default(0)
-  ratingCount       Int              @default(0)
-  reviewsNumber     Int              @default(0)
-  userId            String
-  badges            Badge[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  productCategoryId Int
-  interests         String[]
-  chats             Chat[]
-  itemsOrdered      OrderItem[]
-  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
-  user              User             @relation(fields: [userId], references: [id])
-  comments          ProductComment[]
-  likes             ProductLike[]
+  id                                            Int              @id @default(autoincrement())
+  name                                          String
+  description                                   String
+  price                                         Int
+  hasOffer                                      Boolean          @default(false)
+  offerPrice                                    Int              @default(0)
+  stock                                         Int              @default(0)
+  userId                                        String
+  badges                                        Badge[]
+  barcode                                       String?          @unique
+  brand                                         String
+  color                                         String?
+  createdAt                                     DateTime         @default(now())
+  images                                        String[]
+  interests                                     String[]
+  isActive                                      Boolean          @default(true)
+  isExchangeable                                Boolean          @default(false)
+  productCategoryId                             Int
+  ratingCount                                   Int              @default(0)
+  ratings                                       Float            @default(0)
+  reviewsNumber                                 Int              @default(0)
+  sku                                           String?
+  updatedAt                                     DateTime         @updatedAt
+  chats                                         Chat[]
+  Exchange_Exchange_offeredProductIdToProduct   Exchange[]       @relation("Exchange_offeredProductIdToProduct")
+  Exchange_Exchange_requestedProductIdToProduct Exchange[]       @relation("Exchange_requestedProductIdToProduct")
+  itemsOrdered                                  OrderItem[]
+  productCategory                               ProductCategory  @relation(fields: [productCategoryId], references: [id])
+  user                                          User             @relation(fields: [userId], references: [id])
+  comments                                      ProductComment[]
+  likes                                         ProductLike[]
 }
 
 model ProductLike {
@@ -172,44 +175,44 @@ model MaterialImpactEstimate {
   materialType            String
   estimatedCo2SavingsKG   Float
   estimatedWaterSavingsLT Float
+  fifthMaterialTypeFor    ProductCategory[] @relation("FifthMaterialType")
   firstMaterialTypeFor    ProductCategory[] @relation("FirstMaterialType")
+  fourthMaterialTypeFor   ProductCategory[] @relation("FourthMaterialType")
   secondMaterialTypeFor   ProductCategory[] @relation("SecondMaterialType")
   thirdMaterialTypeFor    ProductCategory[] @relation("ThirdMaterialType")
-  fourthMaterialTypeFor   ProductCategory[] @relation("FourthMaterialType")
-  fifthMaterialTypeFor    ProductCategory[] @relation("FifthMaterialType")
 }
 
 model ProductCategory {
   id                         Int                     @id @default(autoincrement())
-  productCategoryName        String
   departmentCategoryId       Int
-  keywords                   String[]
   averageWeight              Float?                  @default(0.0)
-  firstMaterialTypeId        Int?
-  firstMaterialTypeQuantity  Float?                  @default(0.0)
-  secondMaterialTypeId       Int?
-  secondMaterialTypeQuantity Float?                  @default(0.0)
-  thirdMaterialTypeId        Int?
-  thirdMaterialTypeQuantity  Float?                  @default(0.0)
-  fourthMaterialTypeId       Int?
-  fourthMaterialTypeQuantity Float?                  @default(0.0)
   fifthMaterialTypeId        Int?
   fifthMaterialTypeQuantity  Float?                  @default(0.0)
+  firstMaterialTypeId        Int?
+  firstMaterialTypeQuantity  Float?                  @default(0.0)
+  fourthMaterialTypeId       Int?
+  fourthMaterialTypeQuantity Float?                  @default(0.0)
+  keywords                   String[]
+  productCategoryName        String
+  secondMaterialTypeId       Int?
+  secondMaterialTypeQuantity Float?                  @default(0.0)
   size                       ProductSize?            @default(M)
+  thirdMaterialTypeId        Int?
+  thirdMaterialTypeQuantity  Float?                  @default(0.0)
   weightUnit                 WeightUnit?             @default(KG)
   products                   Product[]
   departmentCategory         DepartmentCategory      @relation(fields: [departmentCategoryId], references: [id])
+  fifthMaterialType          MaterialImpactEstimate? @relation("FifthMaterialType", fields: [fifthMaterialTypeId], references: [id])
   firstMaterialType          MaterialImpactEstimate? @relation("FirstMaterialType", fields: [firstMaterialTypeId], references: [id])
+  fourthMaterialType         MaterialImpactEstimate? @relation("FourthMaterialType", fields: [fourthMaterialTypeId], references: [id])
   secondMaterialType         MaterialImpactEstimate? @relation("SecondMaterialType", fields: [secondMaterialTypeId], references: [id])
   thirdMaterialType          MaterialImpactEstimate? @relation("ThirdMaterialType", fields: [thirdMaterialTypeId], references: [id])
-  fourthMaterialType         MaterialImpactEstimate? @relation("FourthMaterialType", fields: [fourthMaterialTypeId], references: [id])
-  fifthMaterialType          MaterialImpactEstimate? @relation("FifthMaterialType", fields: [fifthMaterialTypeId], references: [id])
 }
 
 model DepartmentCategory {
   id                     Int               @id @default(autoincrement())
-  departmentCategoryName String
   departmentId           Int
+  departmentCategoryName String
   department             Department        @relation(fields: [departmentId], references: [id])
   productCategories      ProductCategory[]
 }
@@ -226,14 +229,15 @@ model Transaction {
   pointsCollected Int
   createdAt       DateTime        @default(now())
   userId          String
+  Exchange        Exchange?
   user            User            @relation(fields: [userId], references: [id])
 }
 
 model Story {
   id          Int      @id @default(autoincrement())
+  images      String[]
   title       String
   description String
-  images      String[]
   userId      String
   user        User     @relation(fields: [userId], references: [id])
 }
@@ -302,6 +306,20 @@ model WaterImpactMessage {
   message1 String
   message2 String
   message3 String
+}
+
+model Exchange {
+  id                                           Int            @id @default(autoincrement())
+  transactionId                                Int            @unique
+  offeredProductId                             Int
+  requestedProductId                           Int
+  status                                       ExchangeStatus @default(PENDING)
+  notes                                        String?
+  createdAt                                    DateTime       @default(now())
+  completedAt                                  DateTime?
+  Product_Exchange_offeredProductIdToProduct   Product        @relation("Exchange_offeredProductIdToProduct", fields: [offeredProductId], references: [id])
+  Product_Exchange_requestedProductIdToProduct Product        @relation("Exchange_requestedProductIdToProduct", fields: [requestedProductId], references: [id])
+  Transaction                                  Transaction    @relation(fields: [transactionId], references: [id])
 }
 
 enum AccountType {
@@ -381,4 +399,12 @@ enum ProductSize {
   M
   L
   XL
+}
+
+enum ExchangeStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
 }
