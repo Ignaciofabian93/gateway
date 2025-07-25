@@ -63,7 +63,7 @@ const origin =
     ? ["http://localhost:3000"]
     : environment === "qa"
       ? ["https://qa.app.ekoru.cl"]
-      : ["https://app.ekoru.cl"];
+      : ["https://app.ekoru.cl", "http://localhost:3000"];
 
 app.use(
   cors({
