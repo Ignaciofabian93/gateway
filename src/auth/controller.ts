@@ -54,7 +54,7 @@ export const RefreshToken = (req: Request, res: Response) => {
       maxAge: 15 * 60 * 1000,
       domain: environment === "production" ? ".ekoru.cl" : undefined,
     });
-    res.json({ token: newToken, success: true });
+    res.json({ token: newToken, success: true, userId: payload.userId });
   } catch {
     res.status(401).json({ message: "Token de acceso inválido" });
   }
