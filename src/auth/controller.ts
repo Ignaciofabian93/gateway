@@ -36,7 +36,7 @@ export const Login = async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     domain: environment === "production" ? ".ekoru.cl" : undefined,
   });
-  res.json({ token, message: "Inicio de sesión exitoso", userId: user.id });
+  res.json({ token, message: "Inicio de sesión exitoso" });
 };
 
 export const RefreshToken = (req: Request, res: Response) => {
@@ -54,7 +54,7 @@ export const RefreshToken = (req: Request, res: Response) => {
       maxAge: 15 * 60 * 1000,
       domain: environment === "production" ? ".ekoru.cl" : undefined,
     });
-    res.json({ token: newToken, success: true, userId: payload.userId });
+    res.json({ token: newToken, success: true });
   } catch {
     res.status(401).json({ message: "Token de acceso inválido" });
   }
