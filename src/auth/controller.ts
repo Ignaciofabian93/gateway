@@ -36,7 +36,7 @@ export const Login = async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     domain: environment === "production" ? ".ekoru.cl" : undefined,
   });
-  res.json({ token, message: "Inicio de sesión exitoso" });
+  res.json({ token, message: "Inicio de sesión exitoso", userId: user.id });
 };
 
 export const RefreshToken = (req: Request, res: Response) => {
