@@ -2,7 +2,7 @@ import { type ShippingStage } from "./enums";
 
 export type Order = {
   id: number;
-  userId: string;
+  sellerId: string; // Changed from userId to sellerId (buyer)
   createdAt: string;
   shippingStatusId: number;
 };

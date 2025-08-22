@@ -1,12 +1,12 @@
 export type ProductLike = {
   id: number;
   productId: number;
-  userId: string;
+  sellerId: string; // Changed from userId to sellerId
 };
 
 export type ProductComment = {
   id: number;
   comment: string;
   productId: number;
-  userId: string;
+  sellerId: string; // Changed from userId to sellerId
 };

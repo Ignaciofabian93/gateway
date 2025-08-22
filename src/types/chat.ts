@@ -22,3 +22,21 @@ export type Message = {
   content: string;
   createdAt: string;
 };
+
+export type Co2ImpactMessage = {
+  id: number;
+  min: number;
+  max: number;
+  message1: string;
+  message2: string;
+  message3: string;
+};
+
+export type WaterImpactMessage = {
+  id: number;
+  min: number;
+  max: number;
+  message1: string;
+  message2: string;
+  message3: string;
+};

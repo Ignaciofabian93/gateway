@@ -1,6 +1,22 @@
 export type AccountType = "FREE" | "PLUS" | "PREMIUM";
+
+export type SellerType = "PERSON" | "STORE";
+
+export type ProductCondition =
+  | "NEW"
+  | "LIKE_NEW"
+  | "EXCELLENT"
+  | "GOOD"
+  | "FAIR"
+  | "POOR"
+  | "FOR_PARTS"
+  | "USED"
+  | "REFURBISHED";
+
 export type TransactionKind = "PURCHASE" | "EXCHANGE" | "GIFT" | "REFERRAL" | "BONUS";
+
 export type ShippingStage = "PREPARING" | "SHIPPED" | "DELIVERED" | "RETURNED" | "CANCELED";
+
 export type Badge =
   | "POPULAR"
   | "DISCOUNTED"
@@ -35,6 +51,11 @@ export type Badge =
   | "DELIVERED_TO_HOME"
   | "IN_HOUSE_PICKUP"
   | "IN_MID_POINT_PICKUP";
+
 export type ContactMethod = "EMAIL" | "WHATSAPP" | "ALL";
+
 export type WeightUnit = "KG" | "LB" | "OZ" | "G";
-export type ProductSize = "SMALL" | "MEDIUM" | "LARGE";
+
+export type ProductSize = "XS" | "S" | "M" | "L" | "XL";
+
+export type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED";

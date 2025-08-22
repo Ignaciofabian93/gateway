@@ -3,5 +3,5 @@ export type Story = {
   title: string;
   description: string;
   images: string[];
-  userId: string;
+  sellerId: string; // Changed from userId to sellerId
 };

@@ -7,7 +7,7 @@ import { environment } from "../config/config";
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const formattedEmail = email.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email: formattedEmail } });
+  const user = await prisma.seller.findUnique({ where: { email: formattedEmail } });
   if (!user) {
     res.status(400).json({ error: "No se encontró al usuario" });
     return;
