@@ -21,10 +21,10 @@ const urlsByEnv = {
     transaction: "http://transaction_subgraph_qa:4104/graphql",
   },
   production: {
-    users: "http://users_subgraph_prod:4001/graphql",
-    products: "http://products_subgraph_prod:4002/graphql",
-    search: "http://search_subgraph_prod:4003/graphql",
-    transaction: "http://transaction_subgraph_prod:4004/graphql",
+    users: "http://user-service:9001/graphql",
+    products: "http://product-service:9002/graphql",
+    search: "http://search-service:9003/graphql",
+    transaction: "http://transaction-service:9004/graphql",
   },
 };
 
