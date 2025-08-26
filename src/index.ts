@@ -57,14 +57,17 @@ await server.start();
 
 const app = express();
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 9000;
 
 const origin =
   environment === "development"
-    ? ["http://localhost:3000"]
+    ? ["http://localhost:3000", "http://74.208.125.88:8100"]
     : environment === "qa"
-      ? ["https://qa.app.ekoru.cl"]
+      ? ["https://qa.app.ekoru.cl", "http://74.208.125.88:8100"]
       : ["https://app.ekoru.cl", "http://localhost:3000", "http://74.208.125.88:8100"];
+
+console.log("Current environment:", environment);
+console.log("Allowed origins:", origin);
 
 app.use(
   cors({
