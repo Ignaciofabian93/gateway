@@ -9,8 +9,8 @@ export const environment: Environment = allowedEnvironments.includes(env as Envi
 // Define URLs for each environment
 const urlsByEnv = {
   development: {
-    users: "http://localhost:9001/graphql",
-    products: "http://localhost:9002/graphql",
+    users: "http://user-service:9001/graphql",
+    products: "http://product-service:9002/graphql",
     search: "http://localhost:9003/graphql",
     transaction: "http://localhost:9004/graphql",
   },
