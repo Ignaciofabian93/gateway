@@ -16,111 +16,78 @@ model Admin {
   updatedAt DateTime @updatedAt
 }
 
-// Base seller model - can be either a person or store
 model Seller {
-  id                String          @id @default(uuid())
-  email             String          @unique
-  password          String
-  sellerType        SellerType      
-  isActive          Boolean         @default(true)
-  isVerified        Boolean         @default(false)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  
-  // Location information
-  address           String          @default("")
-  cityId            Int?
-  countryId         Int?
-  countyId          Int?
-  regionId          Int?
-  
-  // Contact information
-  phone             String          @default("")
-  website           String?
-  preferredContactMethod ContactMethod @default(WHATSAPP)
-  
-  // Social media links
-  socialMediaLinks  Json?           // {instagram: "url", facebook: "url", etc}
-  
-  // Business/Account information
-  accountType       AccountType     @default(FREE)
-  points            Int             @default(0)
-  userCategoryId    Int?
-  
-  // Relationships
-  personProfile     PersonProfile?
-  storeProfile      StoreProfile?
-  products          Product[]
-  orders            Order[]
-  receivedChats     Chat[]          @relation("ChatReceiver")
-  sentChats         Chat[]          @relation("ChatSender")
-  messages          Message[]
-  comments          ProductComment[]
-  likes             ProductLike[]
-  sessions          Session[]
-  stories           Story[]
-  transactions      Transaction[]
-  matchesReceived   Match[]         @relation("MatchReceiver")
-  matchesSent       Match[]         @relation("MatchSender")
-  
-  // Location relations
-  city              City?           @relation(fields: [cityId], references: [id])
-  country           Country?        @relation(fields: [countryId], references: [id])
-  county            County?         @relation(fields: [countyId], references: [id])
-  region            Region?         @relation(fields: [regionId], references: [id])
-  userCategory      UserCategory?   @relation(fields: [userCategoryId], references: [id])
+  id                     String           @id @default(uuid())
+  email                  String           @unique
+  password               String
+  sellerType             SellerType
+  isActive               Boolean          @default(true)
+  isVerified             Boolean          @default(false)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  address                String?          @default("")
+  cityId                 Int?
+  countryId              Int?
+  countyId               Int?
+  regionId               Int?
+  phone                  String?          @default("")
+  website                String?
+  preferredContactMethod ContactMethod?   @default(WHATSAPP)
+  socialMediaLinks       Json?
+  accountType            AccountType?     @default(FREE)
+  points                 Int?             @default(0)
+  sellerCategoryId       Int?
+  receivedChats          Chat[]           @relation("ChatReceiver")
+  sentChats              Chat[]           @relation("ChatSender")
+  matchesReceived        Match[]          @relation("MatchReceiver")
+  matchesSent            Match[]          @relation("MatchSender")
+  messages               Message[]
+  orders                 Order[]
+  personProfile          PersonProfile?
+  products               Product[]
+  comments               ProductComment[]
+  likes                  ProductLike[]
+  city                   City?            @relation(fields: [cityId], references: [id])
+  country                Country?         @relation(fields: [countryId], references: [id])
+  county                 County?          @relation(fields: [countyId], references: [id])
+  region                 Region?          @relation(fields: [regionId], references: [id])
+  SellerCategory         SellerCategory?  @relation(fields: [sellerCategoryId], references: [id])
+  storeProfile           StoreProfile?
+  stories                Story[]
+  transactions           Transaction[]
 }
 
-// Profile for individual persons
 model PersonProfile {
-  id                String          @id @default(uuid())
-  sellerId          String          @unique
-  firstName         String
-  lastName          String?
-  displayName       String?         // Custom display name
-  bio               String?
-  birthday          DateTime?
-  profileImage      String?
-  coverImage        String?
-  
-  // Person-specific preferences
-  allowExchanges    Boolean         @default(true)
-  
-  seller            Seller          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  id             String    @id @default(uuid())
+  sellerId       String    @unique
+  firstName      String
+  lastName       String?
+  displayName    String?
+  bio            String?
+  birthday       DateTime?
+  profileImage   String?
+  coverImage     String?
+  allowExchanges Boolean   @default(true)
+  seller         Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 }
 
-// Profile for stores/businesses
 model StoreProfile {
-  id                    String          @id @default(uuid())
-  sellerId              String          @unique
-  businessName          String
-  displayName           String?         // Custom display name
-  description           String?
-  logo                  String?
-  coverImage            String?
-  businessType          String?         // "retail", "manufacturer", etc.
-  taxId                 String?
-  businessRegistration  String?
-  
-  // Store-specific settings
-  allowExchanges        Boolean         @default(false) // Stores typically don't exchange
-  minOrderAmount        Int?            // Minimum order amount in cents
-  shippingPolicy        String?
-  returnPolicy          String?
-  
-  // Business hours
-  businessHours         Json?           // {monday: {open: "9:00", close: "17:00"}, etc}
-  
-  seller                Seller          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-  sellerId  String   // Changed from userId to sellerId
-  seller    Seller   @relation(fields: [sellerId], references: [id])
+  id                   String  @id @default(uuid())
+  sellerId             String  @unique
+  businessName         String
+  displayName          String?
+  description          String?
+  logo                 String?
+  coverImage           String?
+  businessType         String?
+  taxId                String?
+  businessRegistration String?
+  allowExchanges       Boolean @default(false)
+  minOrderAmount       Int?
+  shippingPolicy       String?
+  returnPolicy         String?
+  businessHours        Json?
+  seller               Seller  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 }
 
 model Country {
@@ -131,11 +98,11 @@ model Country {
 }
 
 model Region {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   region    String
   countryId Int
   cities    City[]
-  country   Country @relation(fields: [countryId], references: [id])
+  country   Country  @relation(fields: [countryId], references: [id])
   sellers   Seller[]
 }
 
@@ -149,11 +116,11 @@ model City {
 }
 
 model County {
-  id       Int      @id @default(autoincrement())
-  county   String
-  cityId   Int
-  city     City     @relation(fields: [cityId], references: [id])
-  sellers  Seller[]
+  id      Int      @id @default(autoincrement())
+  county  String
+  cityId  Int
+  city    City     @relation(fields: [cityId], references: [id])
+  sellers Seller[]
 }
 
 model Match {
@@ -166,24 +133,15 @@ model Match {
   sender     Seller   @relation("MatchSender", fields: [senderId], references: [id])
 }
 
-model UserCategory {
-  id                     Int      @id @default(autoincrement())
-  name                   String
-  categoryDiscountAmount Int
-  pointsThreshold        Int
-  level                  Int
-  sellers                Seller[]
-}
-
 model Product {
   id                                            Int              @id @default(autoincrement())
   name                                          String
   description                                   String
-  price                                         Int              // Price in cents
+  price                                         Int
   hasOffer                                      Boolean          @default(false)
   offerPrice                                    Int              @default(0)
   stock                                         Int              @default(0)
-  sellerId                                      String           // Changed from userId to sellerId
+  sellerId                                      String
   badges                                        Badge[]
   barcode                                       String?          @unique
   brand                                         String
@@ -199,16 +157,11 @@ model Product {
   reviewsNumber                                 Int              @default(0)
   sku                                           String?
   updatedAt                                     DateTime         @updatedAt
-  
-  // Product condition for recycled items
-  condition                                     ProductCondition @default(USED)
-  conditionDescription                          String?          // Detailed condition description
-  
-  // Sustainability info
-  sustainabilityScore                           Int?             // 1-100 score
-  materialComposition                           String?          // e.g., "80% cotton, 20% polyester"
-  recycledContent                               Float?           // Percentage of recycled materials
-  
+  condition                                     ProductCondition @default(NEW)
+  conditionDescription                          String?
+  sustainabilityScore                           Int?
+  materialComposition                           String?
+  recycledContent                               Float?
   chats                                         Chat[]
   Exchange_Exchange_offeredProductIdToProduct   Exchange[]       @relation("Exchange_offeredProductIdToProduct")
   Exchange_Exchange_requestedProductIdToProduct Exchange[]       @relation("Exchange_requestedProductIdToProduct")
@@ -217,12 +170,13 @@ model Product {
   seller                                        Seller           @relation(fields: [sellerId], references: [id])
   comments                                      ProductComment[]
   likes                                         ProductLike[]
+  ProductVariant                                ProductVariant[]
 }
 
 model ProductLike {
   id        Int     @id @default(autoincrement())
   productId Int
-  sellerId  String  // Changed from userId to sellerId
+  sellerId  String
   product   Product @relation(fields: [productId], references: [id])
   seller    Seller  @relation(fields: [sellerId], references: [id])
 }
@@ -231,7 +185,7 @@ model ProductComment {
   id        Int     @id @default(autoincrement())
   comment   String
   productId Int
-  sellerId  String  // Changed from userId to sellerId
+  sellerId  String
   product   Product @relation(fields: [productId], references: [id])
   seller    Seller  @relation(fields: [sellerId], references: [id])
 }
@@ -286,6 +240,7 @@ model DepartmentCategory {
 model Department {
   id                   Int                  @id @default(autoincrement())
   departmentName       String
+  departmentImage      String?
   departmentCategories DepartmentCategory[]
 }
 
@@ -294,7 +249,7 @@ model Transaction {
   kind            TransactionKind
   pointsCollected Int
   createdAt       DateTime        @default(now())
-  sellerId        String          // Changed from userId to sellerId
+  sellerId        String
   Exchange        Exchange?
   seller          Seller          @relation(fields: [sellerId], references: [id])
 }
@@ -304,17 +259,17 @@ model Story {
   images      String[]
   title       String
   description String
-  sellerId    String   // Changed from userId to sellerId
+  sellerId    String
   seller      Seller   @relation(fields: [sellerId], references: [id])
 }
 
 model Order {
   id               Int            @id @default(autoincrement())
-  sellerId         String         // Changed from userId to sellerId (buyer)
+  sellerId         String
   createdAt        DateTime       @default(now())
   shippingStatusId Int
-  shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
   seller           Seller         @relation(fields: [sellerId], references: [id])
+  shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
   orderItems       OrderItem[]
 }
 
@@ -388,6 +343,30 @@ model Exchange {
   Transaction                                  Transaction    @relation(fields: [transactionId], references: [id])
 }
 
+model ProductVariant {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  name      String
+  price     Int
+  stock     Int
+  color     String?
+  size      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([productId, color, size])
+}
+
+model SellerCategory {
+  id                     Int      @id @default(autoincrement())
+  name                   String
+  categoryDiscountAmount Int
+  pointsThreshold        Int
+  level                  Int
+  Seller                 Seller[]
+}
+
 enum AccountType {
   FREE
   PLUS
@@ -401,13 +380,11 @@ enum SellerType {
 
 enum ProductCondition {
   NEW
+  OPEN_BOX
   LIKE_NEW
-  EXCELLENT
-  GOOD
   FAIR
   POOR
   FOR_PARTS
-  USED
   REFURBISHED
 }
 
@@ -431,7 +408,6 @@ enum Badge {
   POPULAR
   DISCOUNTED
   WOMAN_OWNED
-  ECO_FRIENDLY
   BEST_SELLER
   TOP_RATED
   COMMUNITY_FAVORITE
@@ -446,10 +422,6 @@ enum Badge {
   LIMITED_STOCK
   SEASONAL
   FREE_SHIPPING
-  NEW
-  USED
-  SLIGHT_DAMAGE
-  WORN
   FOR_REPAIR
   REFURBISHED
   EXCHANGEABLE
@@ -467,6 +439,8 @@ enum ContactMethod {
   EMAIL
   WHATSAPP
   ALL
+  PHONE
+  INSTAGRAM
 }
 
 enum WeightUnit {

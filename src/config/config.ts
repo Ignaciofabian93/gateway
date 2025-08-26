@@ -30,3 +30,21 @@ const urlsByEnv = {
 
 // Export URLs based on current environment
 export const subgraphsURLs = urlsByEnv[environment];
+
+// Images configuration
+export const imagesConfig = {
+  development: {
+    basePath: process.env.DEV_IMAGES_PATH || "/public/images",
+    baseUrl: "http://localhost:4000/images",
+  },
+  qa: {
+    basePath: "/home/ekoru/images",
+    baseUrl: "https://qa.gateway.ekoru.cl/images",
+  },
+  production: {
+    basePath: "/home/ekoru/images",
+    baseUrl: "https://gateway.ekoru.cl/images",
+  },
+};
+
+export const getImagesConfig = () => imagesConfig[environment];

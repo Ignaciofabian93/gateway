@@ -11,7 +11,8 @@ import cors from "cors";
 import http from "http";
 import cookieParser from "cookie-parser";
 import auth from "./auth/route";
-import { subgraphsURLs, environment } from "./config/config";
+import imageRoutes from "./routes/images";
+import { subgraphsURLs, environment, getImagesConfig } from "./config/config";
 
 type Context = {
   token?: string;
@@ -76,7 +77,15 @@ app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
 
+// Serve static files for images from Ubuntu server
+// For development: use local path, for production: mount Ubuntu server path
+const config = getImagesConfig();
+console.log("config:: ", config);
+
+app.use("/images", express.static(config.basePath));
+
 app.use("/session", auth);
+app.use("/api/images", imageRoutes);
 
 app.use(
   `/graphql`,

@@ -6,9 +6,11 @@ services:
     restart: always
     container_name: gateway
     ports:
-      - "4000:4000"
+      - "9000:9000"
     networks:
       - ekoru-network
+    volumes:
+      - /home/ekoru/images:/home/ekoru/images
 
 networks:
   ekoru-network:
