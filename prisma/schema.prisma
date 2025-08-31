@@ -17,44 +17,58 @@ model Admin {
 }
 
 model Seller {
-  id                     String           @id @default(uuid())
-  email                  String           @unique
-  password               String
-  sellerType             SellerType
-  isActive               Boolean          @default(true)
-  isVerified             Boolean          @default(false)
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  address                String?          @default("")
-  cityId                 Int?
-  countryId              Int?
-  countyId               Int?
-  regionId               Int?
-  phone                  String?          @default("")
-  website                String?
-  preferredContactMethod ContactMethod?   @default(WHATSAPP)
-  socialMediaLinks       Json?
-  accountType            AccountType?     @default(FREE)
-  points                 Int?             @default(0)
-  sellerCategoryId       Int?
-  receivedChats          Chat[]           @relation("ChatReceiver")
-  sentChats              Chat[]           @relation("ChatSender")
-  matchesReceived        Match[]          @relation("MatchReceiver")
-  matchesSent            Match[]          @relation("MatchSender")
-  messages               Message[]
-  orders                 Order[]
-  personProfile          PersonProfile?
-  products               Product[]
-  comments               ProductComment[]
-  likes                  ProductLike[]
-  city                   City?            @relation(fields: [cityId], references: [id])
-  country                Country?         @relation(fields: [countryId], references: [id])
-  county                 County?          @relation(fields: [countyId], references: [id])
-  region                 Region?          @relation(fields: [regionId], references: [id])
-  SellerCategory         SellerCategory?  @relation(fields: [sellerCategoryId], references: [id])
-  storeProfile           StoreProfile?
-  stories                Story[]
-  transactions           Transaction[]
+  id                                     String           @id @default(uuid())
+  email                                  String           @unique
+  password                               String
+  sellerType                             SellerType
+  isActive                               Boolean          @default(true)
+  isVerified                             Boolean          @default(false)
+  createdAt                              DateTime         @default(now())
+  updatedAt                              DateTime         @updatedAt
+  address                                String?          @default("")
+  cityId                                 Int?
+  countryId                              Int?
+  countyId                               Int?
+  regionId                               Int?
+  phone                                  String?          @default("")
+  website                                String?
+  preferredContactMethod                 ContactMethod?   @default(WHATSAPP)
+  socialMediaLinks                       Json?
+  accountType                            AccountType?     @default(FREE)
+  points                                 Int?             @default(0)
+  sellerCategoryId                       Int?
+  receivedChats                          Chat[]           @relation("ChatReceiver")
+  sentChats                              Chat[]           @relation("ChatSender")
+  matchesReceived                        Match[]          @relation("MatchReceiver")
+  matchesSent                            Match[]          @relation("MatchSender")
+  messages                               Message[]
+  Notification                           Notification[]
+  orders                                 Order[]
+  Payment_Payment_payerIdToSeller        Payment[]        @relation("Payment_payerIdToSeller")
+  Payment_Payment_receiverIdToSeller     Payment[]        @relation("Payment_receiverIdToSeller")
+  personProfile                          PersonProfile?
+  products                               Product[]
+  comments                               ProductComment[]
+  likes                                  ProductLike[]
+  Quotation_Quotation_clientIdToSeller   Quotation[]      @relation("Quotation_clientIdToSeller")
+  Quotation_Quotation_providerIdToSeller Quotation[]      @relation("Quotation_providerIdToSeller")
+  city                                   City?            @relation(fields: [cityId], references: [id])
+  country                                Country?         @relation(fields: [countryId], references: [id])
+  county                                 County?          @relation(fields: [countyId], references: [id])
+  region                                 Region?          @relation(fields: [regionId], references: [id])
+  SellerCategory                         SellerCategory?  @relation(fields: [sellerCategoryId], references: [id])
+  Service                                Service[]
+  ServiceProfile                         ServiceProfile?
+  ServiceReview                          ServiceReview[]
+  storeProfile                           StoreProfile?
+  stories                                Story[]
+  transactions                           Transaction[]
+
+  @@index([cityId])
+  @@index([email])
+  @@index([isActive])
+  @@index([isVerified])
+  @@index([sellerType])
 }
 
 model PersonProfile {
@@ -171,6 +185,12 @@ model Product {
   comments                                      ProductComment[]
   likes                                         ProductLike[]
   ProductVariant                                ProductVariant[]
+
+  @@index([createdAt])
+  @@index([isActive])
+  @@index([price])
+  @@index([productCategoryId])
+  @@index([sellerId])
 }
 
 model ProductLike {
@@ -182,12 +202,14 @@ model ProductLike {
 }
 
 model ProductComment {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   comment   String
   productId Int
   sellerId  String
-  product   Product @relation(fields: [productId], references: [id])
-  seller    Seller  @relation(fields: [sellerId], references: [id])
+  createdAt DateTime @default(now())
+  rating    Int?
+  product   Product  @relation(fields: [productId], references: [id])
+  seller    Seller   @relation(fields: [sellerId], references: [id])
 }
 
 model MaterialImpactEstimate {
@@ -271,6 +293,7 @@ model Order {
   seller           Seller         @relation(fields: [sellerId], references: [id])
   shippingStatus   ShippingStatus @relation(fields: [shippingStatusId], references: [id])
   orderItems       OrderItem[]
+  Payment          Payment[]
 }
 
 model OrderItem {
@@ -367,6 +390,222 @@ model SellerCategory {
   Seller                 Seller[]
 }
 
+model Notification {
+  id        Int                  @id @default(autoincrement())
+  sellerId  String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean              @default(false)
+  priority  NotificationPriority @default(MEDIUM)
+  relatedId String?
+  actionUrl String?
+  metadata  Json?
+  createdAt DateTime             @default(now())
+  readAt    DateTime?
+  Seller    Seller               @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([isRead])
+  @@index([sellerId])
+  @@index([type])
+}
+
+model NotificationTemplate {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType @unique
+  title     String
+  message   String
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+
+  @@index([type])
+}
+
+model Payment {
+  id                                Int                  @id @default(autoincrement())
+  orderId                           Int?
+  quotationId                       Int?
+  amount                            Float
+  currency                          String               @default("USD")
+  status                            PaymentStatus        @default(PENDING)
+  paymentMethod                     PaymentMethod
+  paymentProvider                   String?
+  externalId                        String?
+  description                       String?
+  fees                              Float?               @default(0)
+  netAmount                         Float?
+  payerId                           String
+  receiverId                        String
+  failureReason                     String?
+  metadata                          Json?
+  createdAt                         DateTime             @default(now())
+  updatedAt                         DateTime
+  processedAt                       DateTime?
+  refundedAt                        DateTime?
+  Order                             Order?               @relation(fields: [orderId], references: [id])
+  Seller_Payment_payerIdToSeller    Seller               @relation("Payment_payerIdToSeller", fields: [payerId], references: [id])
+  Quotation                         Quotation?           @relation(fields: [quotationId], references: [id])
+  Seller_Payment_receiverIdToSeller Seller               @relation("Payment_receiverIdToSeller", fields: [receiverId], references: [id])
+  PaymentRefund                     PaymentRefund[]
+  PaymentTransaction                PaymentTransaction[]
+  PaymentWebhook                    PaymentWebhook[]
+
+  @@index([createdAt])
+  @@index([orderId])
+  @@index([payerId])
+  @@index([quotationId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+model PaymentRefund {
+  id          Int          @id @default(autoincrement())
+  paymentId   Int
+  amount      Float
+  reason      String
+  status      RefundStatus @default(PENDING)
+  externalId  String?
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+  Payment     Payment      @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@index([status])
+}
+
+model PaymentTransaction {
+  id          Int      @id @default(autoincrement())
+  paymentId   Int
+  action      String
+  amount      Float?
+  status      String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  Payment     Payment  @relation(fields: [paymentId], references: [id])
+
+  @@index([action])
+  @@index([createdAt])
+  @@index([paymentId])
+}
+
+model PaymentWebhook {
+  id              Int       @id @default(autoincrement())
+  paymentId       Int?
+  provider        String
+  eventType       String
+  externalId      String
+  payload         Json
+  processed       Boolean   @default(false)
+  processingError String?
+  createdAt       DateTime  @default(now())
+  processedAt     DateTime?
+  Payment         Payment?  @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@index([processed])
+  @@index([provider])
+}
+
+model Quotation {
+  id                                  Int             @id @default(autoincrement())
+  serviceId                           Int
+  clientId                            String
+  providerId                          String
+  title                               String
+  description                         String
+  estimatedPrice                      Float?
+  finalPrice                          Float?
+  estimatedDuration                   Int?
+  status                              QuotationStatus @default(PENDING)
+  clientNotes                         String?
+  providerNotes                       String?
+  attachments                         String[]
+  createdAt                           DateTime        @default(now())
+  updatedAt                           DateTime
+  expiresAt                           DateTime?
+  acceptedAt                          DateTime?
+  completedAt                         DateTime?
+  Payment                             Payment[]
+  Seller_Quotation_clientIdToSeller   Seller          @relation("Quotation_clientIdToSeller", fields: [clientId], references: [id])
+  Seller_Quotation_providerIdToSeller Seller          @relation("Quotation_providerIdToSeller", fields: [providerId], references: [id])
+  Service                             Service         @relation(fields: [serviceId], references: [id])
+}
+
+model Service {
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String?
+  sellerId        String
+  categoryId      Int
+  pricingType     ServicePricing  @default(QUOTATION)
+  basePrice       Float?
+  priceRange      String?
+  duration        Int?
+  isActive        Boolean         @default(true)
+  images          String[]
+  tags            String[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  Quotation       Quotation[]
+  ServiceCategory ServiceCategory @relation(fields: [categoryId], references: [id])
+  Seller          Seller          @relation(fields: [sellerId], references: [id])
+  ServiceReview   ServiceReview[]
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([pricingType])
+  @@index([sellerId])
+}
+
+model ServiceCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  icon        String?
+  isActive    Boolean   @default(true)
+  Service     Service[]
+}
+
+model ServiceProfile {
+  id                   String   @id
+  sellerId             String   @unique
+  businessName         String
+  displayName          String?
+  description          String?
+  logo                 String?
+  coverImage           String?
+  businessType         String?
+  taxId                String?
+  businessRegistration String?
+  allowExchanges       Boolean  @default(false)
+  minOrderAmount       Int?
+  serviceArea          String?
+  serviceHours         Json?
+  yearsOfExperience    Int?
+  licenseNumber        String?
+  insuranceInfo        String?
+  certifications       String[]
+  emergencyService     Boolean  @default(false)
+  travelRadius         Int?
+  responsiveness       String?
+  Seller               Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model ServiceReview {
+  id         Int      @id @default(autoincrement())
+  serviceId  Int
+  reviewerId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  Seller     Seller   @relation(fields: [reviewerId], references: [id])
+  Service    Service  @relation(fields: [serviceId], references: [id])
+}
+
 enum AccountType {
   FREE
   PLUS
@@ -376,6 +615,7 @@ enum AccountType {
 enum SellerType {
   PERSON
   STORE
+  SERVICE
 }
 
 enum ProductCondition {
@@ -464,4 +704,83 @@ enum ExchangeStatus {
   DECLINED
   COMPLETED
   CANCELLED
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  ORDER_RECEIVED
+  ORDER_CONFIRMED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  QUOTATION_REQUEST
+  QUOTATION_RECEIVED
+  QUOTATION_ACCEPTED
+  QUOTATION_DECLINED
+  EXCHANGE_PROPOSAL
+  EXCHANGE_ACCEPTED
+  EXCHANGE_DECLINED
+  EXCHANGE_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  PAYMENT_REFUNDED
+  REVIEW_RECEIVED
+  MESSAGE_RECEIVED
+  PRODUCT_LIKED
+  PRODUCT_COMMENTED
+  SYSTEM_ANNOUNCEMENT
+  ACCOUNT_VERIFICATION
+  PROFILE_UPDATED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  APPLE_PAY
+  GOOGLE_PAY
+  STRIPE
+  CASH_ON_DELIVERY
+  CRYPTOCURRENCY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum QuotationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ServicePricing {
+  FIXED
+  QUOTATION
+  HOURLY
+  PACKAGE
 }
