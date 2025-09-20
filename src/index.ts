@@ -12,20 +12,31 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import auth from "./auth/route";
 import imageRoutes from "./routes/images";
+import coverImageRouter from "./routes/cover-image";
+import profileImageRouter from "./routes/profile-image";
 import { subgraphsURLs, environment, getImagesConfig } from "./config/config";
+import { decodedToken } from "./middleware/auth";
 
 type Context = {
   token?: string;
   req?: Request;
   res?: Response;
+  userId?: string;
+  extensions?: {
+    userId?: string;
+  };
 };
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
   willSendRequest(options: GraphQLDataSourceProcessOptions) {
     const { request, context } = options;
-
     if (context?.token) {
       request.http?.headers.set("Authorization", `Bearer ${context.token}`);
+    }
+
+    const userId = context?.userId || context?.extensions?.userId;
+    if (userId) {
+      request.http?.headers.set("x-user-id", userId);
     }
   }
 }
@@ -89,6 +100,8 @@ app.use("/images", express.static(config.basePath));
 
 app.use("/session", auth);
 app.use("/api/images", imageRoutes);
+app.use("/api/cover-image", coverImageRouter);
+app.use("/api/profile-image", profileImageRouter);
 
 app.use(
   `/graphql`,
@@ -97,8 +110,16 @@ app.use(
       const cookieToken = req.cookies.token || req.cookies.refreshToken;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
-
-      return { token, req, res };
+      const userId = decodedToken(token)?.userId;
+      return {
+        token,
+        req,
+        res,
+        userId,
+        extensions: {
+          userId: userId,
+        },
+      };
     },
   }),
 );
