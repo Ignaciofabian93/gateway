@@ -15,10 +15,10 @@ const urlsByEnv = {
     transaction: "http://localhost:9004/graphql",
   },
   qa: {
-    users: "http://users_subgraph_qa:4101/graphql",
-    products: "http://products_subgraph_qa:4102/graphql",
-    search: "http://search_subgraph_qa:4103/graphql",
-    transaction: "http://transaction_subgraph_qa:4104/graphql",
+    users: "http://user-service:9001/graphql",
+    products: "http://product-service:9002/graphql",
+    search: "http://search-service:9003/graphql",
+    transaction: "http://transaction-service:9004/graphql",
   },
   production: {
     users: "http://user-service:9001/graphql",
