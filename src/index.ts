@@ -72,10 +72,10 @@ const PORT = process.env.PORT || 9000;
 
 const origin =
   environment === "development"
-    ? ["http://localhost:3000", "http://74.208.125.88:8100", "https://qa.app.ekoru.cl"]
+    ? "http://localhost:3000"
     : environment === "qa"
-      ? ["https://qa.app.ekoru.cl", "http://74.208.125.88:8100"]
-      : ["https://app.ekoru.cl", "http://localhost:3000", "http://74.208.125.88:8100"];
+      ? "https://qa.app.ekoru.cl"
+      : "https://app.ekoru.cl";
 
 console.log("Current environment:", environment);
 console.log("Allowed origins:", origin);
