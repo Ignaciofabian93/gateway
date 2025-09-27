@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { compare } from "bcrypt";
+import { environment } from "../config/config";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import prisma from "../client/prisma";
-import { environment } from "../config/config";
 
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -23,18 +23,18 @@ export const Login = async (req: Request, res: Response) => {
     expiresIn: "7d",
   });
   res.cookie("token", token, {
-    httpOnly: environment === "production" ? true : false,
-    secure: environment === "production",
+    httpOnly: environment === "production" || environment === "qa",
+    secure: environment === "production" || environment === "qa",
     sameSite: "lax",
     maxAge: 15 * 60 * 1000, // 15 minutes
-    domain: environment === "production" ? ".ekoru.cl" : undefined,
+    domain: environment === "production" ? "app.ekoru.cl" : environment === "qa" ? "qa.app.ekoru.cl" : undefined,
   });
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: environment === "production" ? true : false,
-    secure: environment === "production",
+    httpOnly: environment === "production" || environment === "qa",
+    secure: environment === "production" || environment === "qa",
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    domain: environment === "production" ? ".ekoru.cl" : undefined,
+    domain: environment === "production" ? "app.ekoru.cl" : environment === "qa" ? "qa.app.ekoru.cl" : undefined,
   });
   res.json({ token, message: "Inicio de sesión exitoso" });
 };
@@ -48,11 +48,11 @@ export const RefreshToken = (req: Request, res: Response) => {
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string) as JwtPayload;
     const newToken = jwt.sign({ userId: payload.userId }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
     res.cookie("token", newToken, {
-      httpOnly: environment === "production" ? true : false,
-      secure: environment === "production",
+      httpOnly: environment === "production" || environment === "qa",
+      secure: environment === "production" || environment === "qa",
       sameSite: "lax",
       maxAge: 15 * 60 * 1000,
-      domain: environment === "production" ? ".ekoru.cl" : undefined,
+      domain: environment === "production" ? ".ekoru.cl" : environment === "qa" ? ".qa.ekoru.cl" : undefined,
     });
     res.json({ token: newToken, success: true });
   } catch {
