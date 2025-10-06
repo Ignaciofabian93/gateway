@@ -38,6 +38,7 @@ coverImageRouter.post("/", upload.single("file"), async (req: Request, res: Resp
 
     // Get environment-specific images configuration
     const imagesConfig = getImagesConfig();
+    console.log("images config:: ", imagesConfig);
 
     // Define upload directory for cover images based on environment
     const uploadDir = path.join(imagesConfig.basePath, "cover-images");

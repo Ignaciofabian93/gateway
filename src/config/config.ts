@@ -44,8 +44,8 @@ export const imagesConfig = {
     baseUrl: "http://localhost:9000/images",
   },
   qa: {
-    basePath: "/home/ekoru/images",
-    baseUrl: "https://qa.gateway.ekoru.cl/images",
+    basePath: process.env.HOME || "/home/ekoru/images",
+    baseUrl: process.env.IMAGES_BASE_URL || "https://qa.gateway.ekoru.cl/images",
   },
   production: {
     basePath: "/home/ekoru/images",
