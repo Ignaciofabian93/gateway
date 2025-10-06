@@ -7,16 +7,24 @@ import { getImagesConfig } from "../config/config";
 
 const coverImageRouter = Router();
 
-// Configure multer for file uploads
+// Configure multer for file uploads with enhanced security
 const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
+    files: 1, // Only allow 1 file
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
+    // More strict MIME type checking
+    const allowedMimeTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+    // Check both MIME type and file extension
+    const fileExtension = file.originalname.toLowerCase().split(".").pop();
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+
+    if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(fileExtension || "")) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed"));
+      cb(new Error("Only JPEG, PNG, and WebP image files are allowed"));
     }
   },
 });
