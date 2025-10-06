@@ -48,6 +48,8 @@ const gateway = new ApolloGateway({
       { name: "products", url: subgraphsURLs.products },
       // { name: "search", url: subgraphsURLs.search },
       // { name: "transaction", url: subgraphsURLs.transaction },
+      // { name: "blog", url: subgraphsURLs.blog },
+      // { name: "community", url: subgraphsURLs.community },
     ],
   }),
   buildService({ url }) {

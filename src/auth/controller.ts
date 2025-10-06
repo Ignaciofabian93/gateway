@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { compare } from "bcrypt";
-import { environment } from "../config/config";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import prisma from "../client/prisma";
+import { environment } from "../config/config";
 
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -27,14 +27,14 @@ export const Login = async (req: Request, res: Response) => {
     secure: environment === "production" || environment === "qa",
     sameSite: "lax",
     maxAge: 15 * 60 * 1000, // 15 minutes
-    domain: environment === "production" ? "app.ekoru.cl" : environment === "qa" ? "qa.app.ekoru.cl" : undefined,
+    domain: environment === "production" || environment === "qa" ? ".ekoru.cl" : undefined,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: environment === "production" || environment === "qa",
     secure: environment === "production" || environment === "qa",
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    domain: environment === "production" ? "app.ekoru.cl" : environment === "qa" ? "qa.app.ekoru.cl" : undefined,
+    domain: environment === "production" || environment === "qa" ? ".ekoru.cl" : undefined,
   });
   res.json({ token, message: "Inicio de sesión exitoso" });
 };
@@ -52,7 +52,7 @@ export const RefreshToken = (req: Request, res: Response) => {
       secure: environment === "production" || environment === "qa",
       sameSite: "lax",
       maxAge: 15 * 60 * 1000,
-      domain: environment === "production" ? ".ekoru.cl" : environment === "qa" ? ".qa.ekoru.cl" : undefined,
+      domain: environment === "production" || environment === "qa" ? ".ekoru.cl" : undefined,
     });
     res.json({ token: newToken, success: true });
   } catch {

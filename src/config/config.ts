@@ -9,22 +9,28 @@ export const environment: Environment = allowedEnvironments.includes(env as Envi
 // Define URLs for each environment
 const urlsByEnv = {
   development: {
-    users: "http://localhost:9001/graphql",
-    products: "http://localhost:9002/graphql",
-    search: "http://localhost:9003/graphql",
-    transaction: "http://localhost:9004/graphql",
+    users: process.env.USER_SERVICE_DEV_URL ?? undefined,
+    products: process.env.PRODUCT_SERVICE_DEV_URL ?? undefined,
+    search: process.env.SEARCH_SERVICE_DEV_URL ?? undefined,
+    transaction: process.env.TRANSACTION_SERVICE_DEV_URL ?? undefined,
+    blog: process.env.BLOG_SERVICE_DEV_URL ?? undefined,
+    community: process.env.COMMUNITY_SERVICE_DEV_URL ?? undefined,
   },
   qa: {
-    users: "http://user-service:9001/graphql",
-    products: "http://product-service:9002/graphql",
-    search: "http://search-service:9003/graphql",
-    transaction: "http://transaction-service:9004/graphql",
+    users: process.env.USER_SERVICE_QA_URL ?? undefined,
+    products: process.env.PRODUCT_SERVICE_QA_URL ?? undefined,
+    search: process.env.SEARCH_SERVICE_QA_URL ?? undefined,
+    transaction: process.env.TRANSACTION_SERVICE_QA_URL ?? undefined,
+    blog: process.env.BLOG_SERVICE_QA_URL ?? undefined,
+    community: process.env.COMMUNITY_SERVICE_QA_URL ?? undefined,
   },
   production: {
-    users: "http://user-service:9001/graphql",
-    products: "http://product-service:9002/graphql",
-    search: "http://search-service:9003/graphql",
-    transaction: "http://transaction-service:9004/graphql",
+    users: process.env.USER_SERVICE_PROD_URL ?? undefined,
+    products: process.env.PRODUCT_SERVICE_PROD_URL ?? undefined,
+    search: process.env.SEARCH_SERVICE_PROD_URL ?? undefined,
+    transaction: process.env.TRANSACTION_SERVICE_PROD_URL ?? undefined,
+    blog: process.env.BLOG_SERVICE_PROD_URL ?? undefined,
+    community: process.env.COMMUNITY_SERVICE_PROD_URL ?? undefined,
   },
 };
 
