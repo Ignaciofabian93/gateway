@@ -44,11 +44,13 @@ export const imagesConfig = {
     baseUrl: "http://localhost:9000/images",
   },
   qa: {
-    basePath: process.env.HOME || "/home/ekoru/images",
+    // Inside the container, the volume is mounted at /app/images
+    basePath: process.env.IMAGES_PATH || "/app/images",
     baseUrl: process.env.IMAGES_BASE_URL || "https://qa.gateway.ekoru.cl/images",
   },
   production: {
-    basePath: "/home/ekoru/images",
+    // Inside the container, the volume is mounted at /app/images
+    basePath: process.env.IMAGES_PATH || "/app/images",
     baseUrl: "https://gateway.ekoru.cl/images",
   },
 };
