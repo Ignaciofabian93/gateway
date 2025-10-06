@@ -10,7 +10,7 @@ services:
     networks:
       - ekoru-network
     volumes:
-      - /home/ekoru/images:/home/ekoru/images
+      - /home/ekoru/images:/app/images
     user: "1000:1000"
 
 networks:
