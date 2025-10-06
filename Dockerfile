@@ -15,9 +15,6 @@ COPY package.json .
 COPY package-lock.json .
 COPY tsconfig.json .
 
-# Install dependencies as root, then switch user for runtime
-RUN npm ci --only=production
-
 COPY . .
 
 RUN npm run build
@@ -31,11 +28,6 @@ RUN mkdir -p /home/ekoru/images/cover-images /home/ekoru/images/profile-images &
 
 # Set ownership of app directory
 RUN chown -R ekoru:ekoru /app
-
-# Remove package manager and clean up (security hardening)
-RUN npm cache clean --force && \
-    rm -rf /tmp/* /var/tmp/* && \
-    rm -rf /root/.npm
 
 # Switch to non-root user
 USER ekoru
