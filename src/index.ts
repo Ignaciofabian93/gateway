@@ -34,9 +34,9 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource<Context> {
       request.http?.headers.set("Authorization", `Bearer ${context.token}`);
     }
 
-    const userId = context?.userId || context?.extensions?.userId;
-    if (userId) {
-      request.http?.headers.set("x-user-id", userId);
+    const sellerId = context?.sellerId || context?.extensions?.sellerId;
+    if (sellerId) {
+      request.http?.headers.set("x-seller-id", sellerId);
     }
   }
 }
@@ -48,7 +48,7 @@ const gateway = new ApolloGateway({
       { name: "products", url: subgraphsURLs.products },
       // { name: "search", url: subgraphsURLs.search },
       // { name: "transaction", url: subgraphsURLs.transaction },
-      // { name: "blog", url: subgraphsURLs.blog },
+      { name: "blog", url: subgraphsURLs.blog },
       // { name: "community", url: subgraphsURLs.community },
     ],
   }),
@@ -112,14 +112,14 @@ app.use(
       const cookieToken = req.cookies.token || req.cookies.refreshToken;
       const headersToken = req.headers.authorization?.split(" ")[1];
       const token = cookieToken || headersToken || "";
-      const userId = decodedToken(token)?.userId;
+      const sellerId = decodedToken(token)?.sellerId;
       return {
         token,
         req,
         res,
-        userId,
+        sellerId,
         extensions: {
-          userId: userId,
+          sellerId: sellerId,
         },
       };
     },

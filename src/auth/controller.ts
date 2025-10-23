@@ -18,8 +18,8 @@ export const Login = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Credenciales inválidas" });
     return;
   }
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn: "15min" });
-  const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET as string, {
+  const token = jwt.sign({ sellerId: user.id }, process.env.JWT_SECRET as string, { expiresIn: "15min" });
+  const refreshToken = jwt.sign({ sellerId: user.id }, process.env.JWT_REFRESH_SECRET as string, {
     expiresIn: "7d",
   });
   res.cookie("token", token, {
@@ -46,7 +46,7 @@ export const RefreshToken = (req: Request, res: Response) => {
   }
   try {
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string) as JwtPayload;
-    const newToken = jwt.sign({ userId: payload.userId }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
+    const newToken = jwt.sign({ sellerId: payload.sellerId }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
     res.cookie("token", newToken, {
       httpOnly: environment === "production" || environment === "qa",
       secure: environment === "production" || environment === "qa",
