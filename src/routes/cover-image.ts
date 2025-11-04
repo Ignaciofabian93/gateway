@@ -64,15 +64,16 @@ coverImageRouter.post("/", upload.single("file"), async (req: Request, res: Resp
     // Write file to disk
     await fs.writeFile(filePath, imageBuffer);
 
-    // Update user profile in database with new cover image URL
-    const imageUrl = `${imagesConfig.baseUrl}/cover-images/${fileName}`;
-    await updateUserCoverImage(userId, imageUrl);
+    // Store relative path in database (without base URL)
+    const imagePath = `/images/cover-images/${fileName}`;
+    await updateUserCoverImage(userId, imagePath);
 
     console.log(`Cover image uploaded: ${fileName} for user: ${userId}`);
 
     res.json({
       message: "File uploaded and processed successfully",
-      imageUrl: imageUrl,
+      imagePath: imagePath,
+      imageUrl: `${imagesConfig.baseUrl}${imagePath}`, // Send full URL in response for immediate use
       fileName: fileName,
       originalSize: req.file.size,
       processedSize: imageBuffer.length,
@@ -116,7 +117,7 @@ async function deleteExistingCoverImage(userId: string, uploadDir: string) {
 }
 
 // Function to update user profile in database
-async function updateUserCoverImage(userId: string, imageUrl: string) {
+async function updateUserCoverImage(userId: string, imagePath: string) {
   try {
     // First try to update PersonProfile if it exists
     const personProfile = await prisma.personProfile.findFirst({
@@ -126,7 +127,7 @@ async function updateUserCoverImage(userId: string, imageUrl: string) {
     if (personProfile) {
       await prisma.personProfile.update({
         where: { sellerId: userId },
-        data: { coverImage: imageUrl },
+        data: { coverImage: imagePath },
       });
     } else {
       // If no PersonProfile exists, you might want to create one or handle this case

@@ -55,15 +55,16 @@ profileImageRouter.post("/", upload.single("file"), async (req: Request, res: Re
     // Write file to disk
     await fs.writeFile(filePath, imageBuffer);
 
-    // Update user profile in database with new profile image URL
-    const imageUrl = `${imagesConfig.baseUrl}/profile-images/${fileName}`;
-    await updateUserProfileImage(userId, imageUrl);
+    // Store relative path in database (without base URL)
+    const imagePath = `/images/profile-images/${fileName}`;
+    await updateUserProfileImage(userId, imagePath);
 
     console.log(`Profile image uploaded: ${fileName} for user: ${userId}`);
 
     res.json({
       message: "File uploaded and processed successfully",
-      imageUrl: imageUrl,
+      imagePath: imagePath,
+      imageUrl: `${imagesConfig.baseUrl}${imagePath}`, // Send full URL in response for immediate use
       fileName: fileName,
       originalSize: req.file.size,
       processedSize: imageBuffer.length,
@@ -115,44 +116,18 @@ async function deleteExistingProfileImage(userId: string, uploadDir: string) {
           console.warn(`Could not delete existing profile image ${existingFileName}:`, error);
         }
       }
-    } else if (user?.sellerType === "STORE") {
-      // If user is a store, check StoreProfile
-      const storeProfile = await prisma.storeProfile.findFirst({
+    } else if (user?.sellerType === "STARTUP" || user?.sellerType === "COMPANY") {
+      // If user is a startup or company, check BusinessProfile
+      const businessProfile = await prisma.businessProfile.findFirst({
         where: { sellerId: userId },
         select: { logo: true },
       });
-      if (storeProfile?.logo) {
+      if (businessProfile?.logo) {
         // Extract filename from URL
-        const urlParts = storeProfile.logo.split("/");
+        const urlParts = businessProfile.logo.split("/");
         const existingFileName = urlParts[urlParts.length - 1];
 
-        console.log(`Found existing store logo URL: ${storeProfile.logo}`);
-        console.log(`Extracted filename: ${existingFileName}`);
-
-        // Check if the file exists and delete it
-        const existingFilePath = path.join(uploadDir, existingFileName);
-        console.log(`Attempting to delete file at: ${existingFilePath}`);
-
-        try {
-          await fs.access(existingFilePath); // Check if file exists
-          await fs.unlink(existingFilePath); // Delete the file
-          console.log(`Deleted existing profile image: ${existingFileName} for user: ${userId}`);
-        } catch (error) {
-          // File doesn't exist or couldn't be deleted - this is not critical
-          console.warn(`Could not delete existing profile image ${existingFileName}:`, error);
-        }
-      }
-    } else if (user?.sellerType === "SERVICE") {
-      const serviceProfile = await prisma.serviceProfile.findFirst({
-        where: { sellerId: userId },
-        select: { logo: true },
-      });
-      if (serviceProfile?.logo) {
-        // Extract filename from URL
-        const urlParts = serviceProfile.logo.split("/");
-        const existingFileName = urlParts[urlParts.length - 1];
-
-        console.log(`Found existing service logo URL: ${serviceProfile.logo}`);
+        console.log(`Found existing business logo URL: ${businessProfile.logo}`);
         console.log(`Extracted filename: ${existingFileName}`);
 
         // Check if the file exists and delete it
@@ -176,7 +151,7 @@ async function deleteExistingProfileImage(userId: string, uploadDir: string) {
 }
 
 // Function to update user profile in database
-async function updateUserProfileImage(userId: string, imageUrl: string) {
+async function updateUserProfileImage(userId: string, imagePath: string) {
   try {
     const user = await prisma.seller.findUnique({
       where: { id: userId },
@@ -191,31 +166,21 @@ async function updateUserProfileImage(userId: string, imageUrl: string) {
       if (personProfile) {
         await prisma.personProfile.update({
           where: { sellerId: userId },
-          data: { profileImage: imageUrl },
+          data: { profileImage: imagePath },
         });
       } else {
         // If no PersonProfile exists, you might want to create one or handle this case
         console.warn(`No PersonProfile found for sellerId: ${userId}`);
         throw new Error("User profile not found");
       }
-    } else if (user?.sellerType === "STORE") {
-      const storeProfile = await prisma.storeProfile.findFirst({
+    } else if (user?.sellerType === "STARTUP" || user?.sellerType === "COMPANY") {
+      const businessProfile = await prisma.businessProfile.findFirst({
         where: { sellerId: userId },
       });
-      if (storeProfile) {
-        await prisma.storeProfile.update({
+      if (businessProfile) {
+        await prisma.businessProfile.update({
           where: { sellerId: userId },
-          data: { logo: imageUrl },
-        });
-      }
-    } else if (user?.sellerType === "SERVICE") {
-      const serviceProfile = await prisma.serviceProfile.findFirst({
-        where: { sellerId: userId },
-      });
-      if (serviceProfile) {
-        await prisma.serviceProfile.update({
-          where: { sellerId: userId },
-          data: { logo: imageUrl },
+          data: { logo: imagePath },
         });
       }
     }

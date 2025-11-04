@@ -16,6 +16,8 @@ import coverImageRouter from "./routes/cover-image";
 import profileImageRouter from "./routes/profile-image";
 import { subgraphsURLs, environment, getImagesConfig } from "./config/config";
 import { decodedToken } from "./middleware/auth";
+import marketPlaceImageRouter from "./routes/marketplace-image";
+import businessImageRouter from "./routes/business-image";
 
 type Context = {
   token?: string;
@@ -46,10 +48,10 @@ const gateway = new ApolloGateway({
     subgraphs: [
       { name: "users", url: subgraphsURLs.users },
       { name: "products", url: subgraphsURLs.products },
+      { name: "services", url: subgraphsURLs.services },
+      { name: "blog", url: subgraphsURLs.blog },
       // { name: "search", url: subgraphsURLs.search },
       // { name: "transaction", url: subgraphsURLs.transaction },
-      { name: "blog", url: subgraphsURLs.blog },
-      // { name: "community", url: subgraphsURLs.community },
     ],
   }),
   buildService({ url }) {
@@ -104,6 +106,8 @@ app.use("/session", auth);
 app.use("/api/images", imageRoutes);
 app.use("/api/cover-image", coverImageRouter);
 app.use("/api/profile-image", profileImageRouter);
+app.use("/api/marketplace-image", marketPlaceImageRouter);
+app.use("/api/business-image", businessImageRouter);
 
 app.use(
   `/graphql`,
